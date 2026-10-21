@@ -1,0 +1,9 @@
+__pycache__/
+.venv/
+*.pyc
+.onbellek/
+
+# Ders kitabı PDF'leri (telif hakkı MEB'e ait) depoya yüklenmez,
+# sadece kendi oluşturduğumuz test PDF'i yüklenir.
+ornekler/*.pdf
+!ornekler/ornek_kitap.pdf
