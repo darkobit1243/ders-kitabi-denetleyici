@@ -62,7 +62,10 @@ def bloklari_paragraflara_birlestir(bloklar):
             satir_yuksekligi = (onceki[3] - onceki[1]) / onceki[5]
             bosluk = y0 - onceki[3]
             girintili = x0 - onceki[0] > 8
-            if 0 <= bosluk < satir_yuksekligi * 0.6 and not girintili and abs(x0 - onceki[0]) < 40:
+            alt_alta = 0 <= bosluk < satir_yuksekligi * 0.6 and not girintili and abs(x0 - onceki[0]) < 40
+            # "olabi-" ile biten bloktan sonra "leceğini" ile başlayan blok: bölünmüş kelimenin devamı
+            bolunmus_kelime = onceki[4].rstrip().endswith(("-", "\xad")) and metin.strip()[:1].islower()
+            if alt_alta or bolunmus_kelime:
                 onceki[1:4] = [min(onceki[1], y0), max(onceki[2], x1), max(onceki[3], y1)]
                 onceki[4] += "\n" + metin
                 onceki[5] += satir_sayisi
