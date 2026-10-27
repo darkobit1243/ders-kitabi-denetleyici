@@ -6,14 +6,16 @@ sayfa/paragraf bilgisiyle gösterir.
 ## Kriterler
 1. **Yazım ve noktalama hataları** – sık yapılan yazım hataları listesi, Türkçe biçimbilim
    çözümleyicisi (zeyrek) ile sözlükte bulunmayan kelimeler, basit noktalama kuralları
-2. **Bilgi tutarsızlıkları** – aynı bilginin kitabın farklı yerlerinde farklı verilmesi *(7. hafta)*
+2. **Bilgi tutarlılığı** – kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi
+   ("%97'si okyanuslarda" / "%87'si okyanuslarda") ve aynı kelimenin farklı yazılışları
+   ("eş kenar" / "eşkenar"). Cümle benzerliği Türkçe için "ilk 5 harf" kök bulma yöntemiyle ölçülür.
 3. **Yaş seviyesine uygunluk** – Ateşman okunabilirlik formülü ve sınıf düzeyine göre çok uzun cümleler
 
 ## Kurulum
 ```
 pip install -r requirements.txt
-python -c "import nltk; nltk.download('punkt_tab')"
 ```
+İnternet bağlantısı yalnızca kurulum sırasında gerekir; program çalışırken internete bağlanmaz.
 Taranmış (resim) sayfalar için [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki)
 Türkçe dil paketiyle kurulmalıdır.
 
@@ -44,6 +46,7 @@ python main.py kitap.pdf --paragraflar              # yalnızca çıkarılan par
 | `pdf_okuyucu.py` | PDF'ten metni sayfa/paragraf bilgisiyle çıkarır, gerekirse OCR yapar |
 | `metin_filtresi.py` | Formül ve tablo parçalarını denetim dışında bırakır |
 | `yazim_denetimi.py` | Kriter 1: yazım ve noktalama |
+| `tutarlilik.py` | Kriter 2: çelişen sayısal bilgiler ve yazım birliği |
 | `yas_seviyesi.py` | Kriter 3: Ateşman okunabilirlik ve cümle uzunluğu |
 | `denetleyici.py` | Bütün adımları birleştirir |
 | `arayuz.py` | Streamlit web arayüzü (yerel) |

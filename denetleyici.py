@@ -1,5 +1,6 @@
 """Bütün adımları birleştirir: PDF'i oku -> denetlenecek paragrafları seç -> kriterleri uygula."""
 
+import tutarlilik
 import yas_seviyesi
 import yazim_denetimi
 from metin_filtresi import incelenebilir_mi
@@ -16,6 +17,10 @@ def kitabi_denetle(pdf_yolu: str, sinif: int):
         for h in bulunanlar:
             h.konum = p.konum
         hatalar += bulunanlar
+
+    # Tutarlılık kitabın bütününe bakar (iki farklı yerdeki bilgiyi karşılaştırır)
+    hatalar += tutarlilik.denetle(incelenecekler)
+    hatalar.sort(key=lambda h: (h.sayfa, h.paragraf_no))
 
     istatistik = {
         "toplam_paragraf": len(paragraflar),

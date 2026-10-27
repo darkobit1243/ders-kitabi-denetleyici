@@ -86,7 +86,8 @@ if pdf_baytlari is None:
     st.markdown(
         "**Denetlenen kriterler**\n"
         "1. **Yazım ve noktalama** – sık yapılan yazım hataları, Türkçe sözlükte bulunmayan kelimeler, noktalama kuralları\n"
-        "2. **Bilgi tutarlılığı** – *yakında*\n"
+        "2. **Bilgi tutarlılığı** – kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi, "
+        "aynı kelimenin farklı yazılışları\n"
         "3. **Yaş seviyesi** – Ateşman okunabilirlik puanı ve sınıf düzeyine göre çok uzun cümleler"
     )
     st.stop()
@@ -105,11 +106,12 @@ if st.session_state.get("anahtar") != anahtar:
 hatalar, ist = st.session_state["sonuc"]
 
 # ---------------- Özet ----------------
-s1, s2, s3, s4 = st.columns(4)
+s1, s2, s3, s4, s5 = st.columns(5)
 s1.metric("İncelenen paragraf", ist["incelenen_paragraf"])
 s2.metric("Atlanan (formül/tablo)", ist["atlanan_paragraf"])
-s3.metric("Yazım bulgusu", sum(h.kriter == "Yazım" for h in hatalar))
-s4.metric("Yaş seviyesi bulgusu", sum(h.kriter == "Yaş seviyesi" for h in hatalar))
+s3.metric("Yazım", sum(h.kriter == "Yazım" for h in hatalar))
+s4.metric("Tutarlılık", sum(h.kriter == "Tutarlılık" for h in hatalar))
+s5.metric("Yaş seviyesi", sum(h.kriter == "Yaş seviyesi" for h in hatalar))
 if ist["metinsiz_sayfalar"]:
     st.warning(f"Şu sayfalarda metin okunamadı: {ist['metinsiz_sayfalar']}")
 
