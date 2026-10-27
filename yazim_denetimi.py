@@ -88,6 +88,13 @@ def zeyrek_hatasini_duzelt():
 
     arama_yolu.initial = classmethod(baslangic_kopyali)
 
+    # zeyrek metni kelimelere bölmek için NLTK'nın internetten indirilen "punkt_tab" verisini
+    # kullanıyor. Biz zeyrek'e zaten tek tek kelime verdiğimiz için bu bölmeye gerek yok;
+    # basit split() kullanarak programın internet bağlantısı olmayan bilgisayarlarda da
+    # (ör. MEB bilgisayarları) çalışmasını sağlıyoruz.
+    import zeyrek.morphology
+    zeyrek.morphology._tokenize_text = lambda metin: metin.split()
+
 
 def cozumleyici():
     """zeyrek'in yüklenmesi birkaç saniye sürdüğü için yalnızca ilk ihtiyaçta yüklenir."""
