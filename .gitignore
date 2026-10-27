@@ -7,3 +7,6 @@ __pycache__/
 # sadece kendi oluşturduğumuz test PDF'i yüklenir.
 ornekler/*.pdf
 !ornekler/ornek_kitap.pdf
+
+# Program çıktısı olan raporlar
+rapor_*.csv
