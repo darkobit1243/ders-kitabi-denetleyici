@@ -1,0 +1,11 @@
+# zeyrek sözlüğünde bulunmayan ama doğru yazılmış kelimeler.
+# Kitap denetlenirken bu kelimeler hata sayılmaz. Her satıra bir kelime yazın.
+ondalık
+sıklıkla
+sebeple
+# matematik terimi: önermenin değili
+değil
+değili
+değilleri
+değillerini
+değilini
