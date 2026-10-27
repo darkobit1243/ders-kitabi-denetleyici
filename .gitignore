@@ -10,3 +10,6 @@ ornekler/*.pdf
 
 # Program çıktısı olan raporlar
 rapor_*.csv
+
+# Arayuze yuklenen PDF dosyalari
+.yuklenenler/

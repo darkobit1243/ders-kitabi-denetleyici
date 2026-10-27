@@ -12,8 +12,10 @@ def kitabi_denetle(pdf_yolu: str, sinif: int):
 
     hatalar = []
     for p in incelenecekler:
-        hatalar += yazim_denetimi.denetle(p)
-        hatalar += yas_seviyesi.denetle(p, sinif)
+        bulunanlar = yazim_denetimi.denetle(p) + yas_seviyesi.denetle(p, sinif)
+        for h in bulunanlar:
+            h.konum = p.konum
+        hatalar += bulunanlar
 
     istatistik = {
         "toplam_paragraf": len(paragraflar),

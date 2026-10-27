@@ -18,6 +18,20 @@ Taranmış (resim) sayfalar için [Tesseract OCR](https://github.com/UB-Mannheim
 Türkçe dil paketiyle kurulmalıdır.
 
 ## Kullanım
+
+### Arayüz (önerilen)
+`baslat.bat` dosyasına çift tıklayın veya:
+```
+streamlit run arayuz.py
+```
+Tarayıcıda `http://localhost:8501` açılır. PDF yükleyin (ya da `ornekler` klasöründen seçin),
+sınıf düzeyini seçip **Denetle**'ye basın. Tablodan bir bulgu seçildiğinde ilgili sayfa,
+paragraf kırmızı kutu ve hatalı kelime sarı vurguyla gösterilir. Rapor CSV olarak indirilebilir.
+
+Program **tamamen yerel** çalışır: sunucu yalnızca `localhost` adresini dinler, Streamlit
+kullanım istatistikleri kapalıdır (`.streamlit/config.toml`) ve hiçbir dosya internete gönderilmez.
+
+### Komut satırı
 ```
 python ornek_pdf_olustur.py                         # test PDF'i oluşturur
 python main.py ornekler/ornek_kitap.pdf --sinif 4   # hataları bulur, rapor_<kitap>.csv oluşturur
@@ -32,6 +46,8 @@ python main.py kitap.pdf --paragraflar              # yalnızca çıkarılan par
 | `yazim_denetimi.py` | Kriter 1: yazım ve noktalama |
 | `yas_seviyesi.py` | Kriter 3: Ateşman okunabilirlik ve cümle uzunluğu |
 | `denetleyici.py` | Bütün adımları birleştirir |
+| `arayuz.py` | Streamlit web arayüzü (yerel) |
+| `baslat.bat` | Arayüzü çift tıklayarak başlatır |
 | `main.py` | Komut satırı arayüzü, CSV rapor |
 | `ek_sozluk.txt` | zeyrek sözlüğünde eksik olan doğru kelimeler |
 | `turkce.py`, `hata.py` | Ortak yardımcılar |

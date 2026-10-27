@@ -1,0 +1,17 @@
+# Proje tamamen yerel çalışır.
+[browser]
+# Streamlit'in kullanım istatistiği göndermesini kapatır
+gatherUsageStats = false
+
+[server]
+# Yalnızca bu bilgisayardan erişilebilir (ağdaki diğer bilgisayarlar erişemez)
+address = "localhost"
+port = 8501
+maxUploadSize = 500
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#1f4e9c"
