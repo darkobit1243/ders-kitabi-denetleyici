@@ -120,8 +120,9 @@ def kriter_karti(kriter: str, aciklama: str) -> str:
             f'{KRITER_SIMGELERI[kriter]}</div><h4>{escape(kriter)}</h4><p>{escape(aciklama)}</p></div>')
 
 
-def ozet_karti(deger: int, etiket: str, renk: str = LACIVERT) -> str:
-    deger = f"{deger:,}".replace(",", ".")    # Türkçe binlik ayırıcı: 1.393
+def ozet_karti(deger, etiket: str, renk: str = LACIVERT) -> str:
+    if isinstance(deger, int):
+        deger = f"{deger:,}".replace(",", ".")    # Türkçe binlik ayırıcı: 1.393
     return (f'<div class="ozet" style="--renk:{renk}"><div class="deger">{deger}</div>'
             f'<div class="etiket">{escape(etiket)}</div></div>')
 

@@ -19,8 +19,35 @@ Millî Eğitim Bakanlığına sunulmak üzere geliştirilmiş öğrenci projesid
 2. **Bilgi tutarlılığı** – kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi
    ("%97'si okyanuslarda" / "%87'si okyanuslarda") ve aynı kelimenin farklı yazılışları
    ("eş kenar" / "eşkenar"). Cümle benzerliği Türkçe için "ilk 5 harf" kök bulma yöntemiyle ölçülür.
-3. **Yaş seviyesine uygunluk** – Ateşman okunabilirlik puanı (ilkokul en az 70, ortaokul 50,
-   lise 30) ve sınıf düzeyine göre çok uzun cümleler (ilkokul 12, ortaokul 18, lise 25 kelime).
+3. **Yaş seviyesine uygunluk** – Ateşman okunabilirlik puanı (İlkokul en az 70, Ortaokul 50,
+   Lise 30) ve sınıf düzeyine göre çok uzun cümleler (İlkokul 12, Ortaokul 18, Lise 25 kelime).
+   Kitabın geneli için Türkçe'ye özgü üç formül birlikte raporlanır: Ateşman (1997),
+   Çetinkaya-Uzun (2010) ve Bezirci-Yılmaz (2010).
+
+### İnceleme ölçütleriyle eşleştirme
+Bulgular, Talim ve Terbiye Kurulu Başkanlığının taslak ders kitabı incelemesinde kullandığı ölçüt
+başlıklarından **Bilimsel Yeterlik** (bilgi tutarlılığı) ve **Dil ve Anlatım Yeterliği** (yazım ve
+noktalama, yazım birliği, okunabilirlik) altında gruplanır. Program bir **ön inceleme** aracıdır;
+resmî incelemenin yerine geçmez ve bu ölçütlerin tamamını kapsamaz.
+
+## Doğruluk ölçümü
+`uygulama\degerlendirme.py`, gerçek bir ders kitabının rastgele seçilen paragraflarına türü bilinen
+hatalar ekleyip programın bunları bulup bulmadığını ölçer. 9. Sınıf matematik ders kitabında
+(her türden 100 örnek):
+
+| Eklenen hata türü | Bulunan |
+|---|---|
+| Yazım hatası (kelimeden bir harf eksik) | %98 |
+| Noktalama (virgülden önce boşluk) | %100 |
+| Çelişen sayısal bilgi | %100 |
+| Çok uzun cümle | %100 |
+
+Hata eklenmemiş 500 paragrafta 39 yazım/noktalama bulgusu çıkmıştır (bir kısmı kitaptaki gerçek
+hatalar, bir kısmı yanlış alarm). Noktalama, çelişki ve uzun cümle testleri kuralların gerçek kitap
+metninde çalıştığını gösterir; kitapta doğal olarak bulunabilecek her hatanın bulunacağı anlamına gelmez.
+```
+.venv\Scripts\python degerlendirme.py ..\ornekler\kitap.pdf --sinif 9
+```
 
 ## Klasör düzeni
 ```
@@ -75,8 +102,9 @@ gelir (`uygulama\tessdata`); ayrıca Tesseract kurmaya gerek yoktur.
 ```
 .venv\Scripts\python -m unittest discover -s testler -v
 ```
-21 test; Türkçe yardımcı fonksiyonlar, PDF okuma, formül filtresi, üç kriterin her biri,
-zeyrek düzeltmesi, internetsiz çalışma ve test PDF'i üzerinde uçtan uca denetimi kapsar.
+26 test; Türkçe yardımcı fonksiyonlar, PDF okuma, formül filtresi, üç kriterin her biri, üç
+okunabilirlik formülü (elle hesaplanmış değerlerle), inceleme ölçütü eşleştirmesi, zeyrek düzeltmesi,
+internetsiz çalışma, test PDF'i üzerinde uçtan uca denetim ve ön inceleme raporunu kapsar.
 
 ## `uygulama` klasöründeki dosyalar
 | Dosya | Görevi |
@@ -88,7 +116,10 @@ zeyrek düzeltmesi, internetsiz çalışma ve test PDF'i üzerinde uçtan uca de
 | `yazim_denetimi.py` | Kriter 1: yazım ve noktalama |
 | `tutarlilik.py` | Kriter 2: çelişen sayısal bilgiler ve yazım birliği |
 | `yas_seviyesi.py` | Kriter 3: Ateşman okunabilirlik ve cümle uzunluğu |
-| `rapor.py` | Yazdırılabilir denetim raporu |
+| `okunabilirlik.py` | Ateşman, Çetinkaya-Uzun ve Bezirci-Yılmaz formülleri |
+| `olcutler.py` | Bulguların TTKB inceleme ölçütü başlıklarıyla eşleştirilmesi |
+| `degerlendirme.py`, `degerlendirme_sonucu.json` | Doğruluk ölçümü ve sonucu |
+| `rapor.py` | Yazdırılabilir ön inceleme raporu |
 | `main.py` | Komut satırı kullanımı |
 | `ek_sozluk.txt` | Sözlükte eksik olan doğru kelimeler (her satıra bir kelime eklenebilir) |
 | `turkce.py`, `hata.py`, `surum.py` | Ortak yardımcılar ve uygulama bilgileri |

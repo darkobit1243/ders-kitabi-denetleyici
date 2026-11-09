@@ -1,5 +1,6 @@
 """Bütün adımları birleştirir: PDF'i oku -> denetlenecek paragrafları seç -> kriterleri uygula."""
 
+import okunabilirlik
 import tutarlilik
 import yas_seviyesi
 import yazim_denetimi
@@ -27,5 +28,7 @@ def kitabi_denetle(pdf_yolu: str, sinif: int):
         "incelenen_paragraf": len(incelenecekler),
         "atlanan_paragraf": len(paragraflar) - len(incelenecekler),
         "metinsiz_sayfalar": metinsiz_sayfalar,
+        # Kitabın bütünü için üç Türkçe okunabilirlik formülü
+        "okunabilirlik": okunabilirlik.kitap_ozeti(incelenecekler, sinif),
     }
     return hatalar, istatistik

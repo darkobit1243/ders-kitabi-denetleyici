@@ -150,8 +150,9 @@ def kelimeleri_ayir(metin: str):
 
 def sahte_hata_mi(onceki: str, kelime: str, sonraki: str) -> bool:
     """PDF'ten metin çıkarılırken oluşan, kitapta gerçekte olmayan "hataları" ayıklar."""
-    # Matematikte değişkene veya sayıya eklenen ek: "b nin", "x ten", "3 ün"
-    if len(onceki) == 1 or (onceki and onceki[-1].isdigit()):
+    # Matematikte değişkene veya sayıya eklenen kısa ek: "b nin", "x ten", "3 ün", "a nın".
+    # Yalnızca kısa parçalar için geçerli; "f fonkiyonunun" gibi uzun kelimeler yine denetlenir.
+    if (len(onceki) == 1 or (onceki and onceki[-1].isdigit())) and len(kelime) <= 5:
         return True
     # Satır sonunda tiresi kaybolmuş bölünmüş kelime: "fonk siyonların", "yü rütebilmeniz"
     if onceki.isalpha() and sozlukte_var_mi(kucuk_harf(onceki + kelime)):
@@ -165,8 +166,12 @@ INGILIZCE_KELIMELER = {"the", "of", "and", "in", "to", "for", "with", "on", "is"
 
 
 def ingilizce_mi(metin: str) -> bool:
-    """Kaynakça gibi İngilizce bölümleri Türkçe sözlükle denetlememek için."""
-    kelimeler = re.findall(r"[a-z]+", metin.lower())
+    """Kaynakça gibi İngilizce bölümleri Türkçe sözlükle denetlememek için.
+
+    Kelimeler bütün harflerle (ç, ğ, ı, ö, ş, ü dahil) ayrılır; yalnızca [a-z] ile ayırmak "için"
+    kelimesini "i" + "in" yapıyor ve Türkçe paragrafları İngilizce sanıyordu.
+    """
+    kelimeler = re.findall(r"[^\W\d_]+", kucuk_harf(metin))
     return sum(1 for k in kelimeler if k in INGILIZCE_KELIMELER) >= 2
 
 

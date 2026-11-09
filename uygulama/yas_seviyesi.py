@@ -8,8 +8,9 @@ Kelimeler ne kadar uzun (çok heceli) ve cümleler ne kadar uzunsa puan o kadar 
   90-100 çok kolay | 70-89 kolay | 50-69 orta | 30-49 zor | 0-29 çok zor
 """
 
+import okunabilirlik
 from hata import Hata
-from turkce import cumlelere_bol, hece_sayisi, kelimeler
+from turkce import cumlelere_bol, kelimeler
 
 KRITER = "Yaş Seviyesi"
 
@@ -43,13 +44,7 @@ def sinif_adi(sinif: int, kademe_ile: bool = False) -> str:
 
 
 def atesman_puani(metin: str) -> float:
-    kelime_listesi = kelimeler(metin)
-    cumle_sayisi = max(1, len(cumlelere_bol(metin)))
-    if not kelime_listesi:
-        return 100.0
-    hece = sum(hece_sayisi(k) for k in kelime_listesi)
-    puan = 198.825 - 40.175 * (hece / len(kelime_listesi)) - 2.610 * (len(kelime_listesi) / cumle_sayisi)
-    return max(0.0, min(100.0, puan))
+    return okunabilirlik.atesman(okunabilirlik.istatistik(metin))
 
 
 def zorluk_adi(puan: float) -> str:
@@ -87,12 +82,15 @@ def denetle(paragraf, sinif: int) -> list:
 
     # 2) Paragrafın genel okunabilirliği
     if len(kelimeler(paragraf.metin)) >= EN_AZ_KELIME:
-        puan = atesman_puani(paragraf.metin)
+        s = okunabilirlik.istatistik(paragraf.metin)
+        puan = okunabilirlik.atesman(s)
         if puan < en_dusuk_puan:
+            yod = okunabilirlik.bezirci_yilmaz(s)
             hatalar.append(Hata(
                 paragraf.sayfa, paragraf.paragraf_no, KRITER,
-                f"Okunabilirlik puanı {puan:.0f} ({zorluk_adi(puan)}); {sinif_adi(sinif)} için en az "
-                f"{en_dusuk_puan} beklenir.",
+                f"Ateşman okunabilirlik puanı {puan:.0f} ({zorluk_adi(puan)}); {sinif_adi(sinif)} için en az "
+                f"{en_dusuk_puan} beklenir. Bezirci-Yılmaz değeri {yod:.1f} "
+                f"({okunabilirlik.bezirci_duzeyi(yod)} düzeyi).",
                 paragraf.metin[:150] + ("..." if len(paragraf.metin) > 150 else ""),
                 "Daha kısa cümleler ve daha az heceli, tanıdık kelimeler kullanın."))
     return hatalar

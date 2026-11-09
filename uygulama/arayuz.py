@@ -4,6 +4,7 @@ Başlatmak için:  BASLAT.bat dosyasına veya masaüstü kısayoluna çift tıkl
 """
 
 import hashlib
+import json
 import os
 from datetime import datetime
 
@@ -14,7 +15,8 @@ import streamlit as st
 import stil
 from denetleyici import kitabi_denetle
 from pdf_okuyucu import TESSDATA
-from rapor import KRITER_ACIKLAMALARI, html_rapor
+from olcutler import olcut_etiketi
+from rapor import DEGERLENDIRME_DOSYASI, KRITER_ACIKLAMALARI, html_rapor
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI
 from yas_seviyesi import sinif_adi
 
@@ -57,15 +59,31 @@ def sayfa_goruntusu(pdf_baytlari: bytes, hata) -> bytes:
         return sayfa.get_pixmap(dpi=120).tobytes("png")
 
 
+SUTUNLAR = ["Sayfa", "Paragraf", "Kriter", "İnceleme Ölçütü", "Açıklama", "Alıntı", "Öneri"]
+
+
 def tabloya_cevir(hatalar) -> pd.DataFrame:
     return pd.DataFrame([{
         "Sayfa": h.sayfa,
         "Paragraf": h.paragraf_no,
         "Kriter": h.kriter,
+        "İnceleme Ölçütü": olcut_etiketi(h),
         "Açıklama": h.aciklama,
         "Alıntı": h.alinti,
         "Öneri": h.oneri,
-    } for h in hatalar], columns=["Sayfa", "Paragraf", "Kriter", "Açıklama", "Alıntı", "Öneri"])
+    } for h in hatalar], columns=SUTUNLAR)
+
+
+def dogruluk_metni() -> str:
+    """degerlendirme.py ile ölçülen yakalama oranlarını kısa bir metne çevirir."""
+    if not os.path.exists(DEGERLENDIRME_DOSYASI):
+        return ""
+    with open(DEGERLENDIRME_DOSYASI, encoding="utf-8") as f:
+        d = json.load(f)
+    oranlar = ", ".join(f"{tur} %{v['oran']:.0f}" for tur, v in d["yakalama"].items())
+    return (f"\n\n**Doğruluk ölçümü.** {d['kitap']} kitabının rastgele paragraflarına türü bilinen hatalar "
+            f"eklenmiş ve bulunma oranları ölçülmüştür: {oranlar}. Hata eklenmemiş {d['temiz_paragraf']} "
+            f"paragrafta {d['temiz_paragraf_yazim_bulgusu']} yazım/noktalama bulgusu çıkmıştır.")
 
 
 def alt_bilgi():
@@ -98,8 +116,15 @@ def karsilama():
             "yazıldığı durumlar (ör. \"eş kenar\" / \"eşkenar\") da gösterilir.\n\n"
             "**Yaş Seviyesi.** Her paragrafın Ateşman okunabilirlik puanı hesaplanır ve sınıf düzeyine göre "
             "belirlenen eşikle karşılaştırılır (İlkokul en az 70, Ortaokul 50, Lise 30). Sınıf düzeyine göre "
-            "çok uzun cümleler ayrıca raporlanır (İlkokul 12, Ortaokul 18, Lise 25 kelime).\n\n"
-            "**Sınırlamalar.** Bulgular *olası* hatalardır ve uzman kontrolü gerektirir. Matematik formülleri "
+            "çok uzun cümleler ayrıca raporlanır (İlkokul 12, Ortaokul 18, Lise 25 kelime). Kitabın geneli için "
+            "Türkçe'ye özgü üç formülün sonucu birlikte verilir: Ateşman (1997), Çetinkaya-Uzun (2010) ve "
+            "Bezirci-Yılmaz (2010).\n\n"
+            "**İnceleme ölçütleri.** Bulgular, Talim ve Terbiye Kurulu Başkanlığının taslak ders kitabı "
+            "incelemesinde kullandığı ölçüt başlıklarından *Bilimsel Yeterlik* (bilgi tutarlılığı) ve *Dil ve "
+            "Anlatım Yeterliği* (yazım, yazım birliği, okunabilirlik) altında gruplanır. Program bir ön inceleme "
+            "aracıdır; resmî incelemenin yerine geçmez."
+            + dogruluk_metni() +
+            "\n\n**Sınırlamalar.** Bulgular *olası* hatalardır ve uzman kontrolü gerektirir. Matematik formülleri "
             "ve tablolar PDF'ten metin olarak okunamadığı için denetlenmez. Taranmış sayfalarda OCR kaynaklı "
             "okuma hataları olabileceği için sözlük kontrolü yapılmaz. Kurallar ağırlıklı olarak matematik "
             "ders kitabı üzerinde ayarlanmıştır."
@@ -179,6 +204,22 @@ for sutun, (deger, etiket, renk) in zip(st.columns(len(kartlar)), kartlar):
 if ist["metinsiz_sayfalar"]:
     st.warning(f"Şu sayfalarda metin okunamadı: {', '.join(map(str, ist['metinsiz_sayfalar']))}")
 
+o = ist.get("okunabilirlik")
+if o and o["olculen_paragraf"]:
+    st.markdown('<div class="bolum-baslik">Kitabın genel okunabilirliği</div>', unsafe_allow_html=True)
+    virgullu = lambda x: f"{x:.1f}".replace(".", ",")
+    for sutun, (deger, etiket) in zip(st.columns(3), [
+        (virgullu(o["atesman"]), f"Ateşman (1997) · {o['atesman_duzeyi']}"),
+        (virgullu(o["cetinkaya_uzun"]), f"Çetinkaya-Uzun (2010) · {o['cetinkaya_duzeyi']}"),
+        (virgullu(o["bezirci_yilmaz"]), f"Bezirci-Yılmaz (2010) · {o['bezirci_duzeyi']}"),
+    ]):
+        sutun.markdown(stil.ozet_karti(deger, etiket, stil.KRITER_RENKLERI_HEX["Yaş Seviyesi"]), unsafe_allow_html=True)
+    oran = round(100 * o["seviye_ustu_paragraf"] / o["olculen_paragraf"])
+    st.caption(f"Ortalama cümle {virgullu(o['ortalama_cumle'])} kelime, ortalama kelime {virgullu(o['ortalama_hece'])} "
+               f"hece. Ölçülen {o['olculen_paragraf']} paragraftan {o['seviye_ustu_paragraf']} tanesi (%{oran}) "
+               f"Bezirci-Yılmaz formülüne göre kitabın kademesinin üstünde. Formüller farklı sonuç verebildiği için "
+               f"birlikte yorumlanmalıdır.")
+
 st.write("")
 ad = os.path.splitext(pdf_adi)[0]
 i1, i2, _ = st.columns([1, 1, 2])
@@ -218,6 +259,7 @@ with sol:
             "Sayfa": st.column_config.NumberColumn(width="small"),
             "Paragraf": st.column_config.NumberColumn("Prg.", width="small"),
             "Kriter": st.column_config.TextColumn(width="small"),
+            "İnceleme Ölçütü": st.column_config.TextColumn(width="medium"),
             "Açıklama": st.column_config.TextColumn(width="large"),
             "Alıntı": st.column_config.TextColumn(width="medium"),
             "Öneri": st.column_config.TextColumn(width="medium"),
@@ -231,6 +273,7 @@ with sag:
         renk = stil.KRITER_RENKLERI_HEX[h.kriter]
         st.markdown(f'<div class="bolum-baslik" style="margin-top:0">Sayfa {h.sayfa} · Paragraf {h.paragraf_no}'
                     f' · <span style="color:{renk}">{h.kriter}</span></div>', unsafe_allow_html=True)
+        st.markdown(stil.ayrinti_karti("İnceleme ölçütü", olcut_etiketi(h), renk), unsafe_allow_html=True)
         st.markdown(stil.ayrinti_karti("Açıklama", h.aciklama, renk), unsafe_allow_html=True)
         st.markdown(stil.ayrinti_karti("Alıntı", h.alinti, renk), unsafe_allow_html=True)
         if h.oneri:

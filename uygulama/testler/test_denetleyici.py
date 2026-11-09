@@ -10,7 +10,11 @@ import unittest
 PROJE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJE)
 
+import okunabilirlik                                 # noqa: E402
 import tutarlilik                                    # noqa: E402
+from hata import Hata                                # noqa: E402
+from olcutler import olcut                           # noqa: E402
+from rapor import html_rapor                         # noqa: E402
 import yas_seviyesi                                  # noqa: E402
 import yazim_denetimi                                # noqa: E402
 from denetleyici import kitabi_denetle               # noqa: E402
@@ -117,6 +121,37 @@ class Tutarlilik(unittest.TestCase):
         self.assertEqual([h.alinti for h in tutarlilik.yazim_birligi(ps)], ["eş kenar"])
 
 
+class Okunabilirlik(unittest.TestCase):
+    """Değerler elle hesaplanmıştır."""
+
+    def test_cetinkaya_uzun(self):
+        # 6 kelime, 9 hece, 2 cümle: 118,823 - 25,987 x 1,5 - 0,971 x 3 = 76,93
+        s = okunabilirlik.istatistik("Ali top at. Ayşe ip atla.")
+        self.assertAlmostEqual(okunabilirlik.cetinkaya_uzun(s), 76.93, places=2)
+        self.assertEqual(okunabilirlik.cetinkaya_duzeyi(76.93), "Bağımsız okuma (5.-7. Sınıf)")
+
+    def test_bezirci_yilmaz(self):
+        # 1 cümle, 3 kelime: 6, 6 ve 5 heceli -> YOD = √(3 x (1 x 3,5 + 2 x 26,25)) = √168 = 12,96
+        s = okunabilirlik.istatistik("Öğretmenlerimiz sınıflarımızı düzenlediler.")
+        self.assertAlmostEqual(okunabilirlik.bezirci_yilmaz(s), 168 ** 0.5, places=6)
+        self.assertEqual(okunabilirlik.bezirci_duzeyi(12.96), "Lisans")
+
+    def test_atesman_ust_sinir(self):
+        self.assertEqual(okunabilirlik.atesman(okunabilirlik.istatistik("Ali top at. Ayşe ip atla.")), 100.0)
+
+
+class IncelemeOlcutleri(unittest.TestCase):
+    def test_eslestirme(self):
+        h = lambda kriter, aciklama="": Hata(1, 1, kriter, aciklama, "")
+        self.assertEqual(olcut(h("Tutarlılık", "Bu bilgi kitabın başka bir yerinde ...")),
+                         ("Bilimsel Yeterlik", "Bilgi tutarlılığı"))
+        self.assertEqual(olcut(h("Tutarlılık", "Yazım birliği yok: ...")),
+                         ("Dil ve Anlatım Yeterliği", "Yazım birliği"))
+        self.assertEqual(olcut(h("Yazım")), ("Dil ve Anlatım Yeterliği", "Yazım ve noktalama"))
+        self.assertEqual(olcut(h("Yaş Seviyesi")),
+                         ("Dil ve Anlatım Yeterliği", "Seviyeye uygunluk ve okunabilirlik"))
+
+
 @unittest.skipUnless(os.path.exists(ORNEK_PDF), "ornek_kitap.pdf bulunamadı")
 class UctanUca(unittest.TestCase):
     """Bilinçli hatalar içeren test PDF'inde üç kriterin de hatasını bulmalı."""
@@ -128,6 +163,14 @@ class UctanUca(unittest.TestCase):
         self.assertIn("Herkez", [h.alinti for h in hatalar])
         for h in hatalar:
             self.assertIsNotNone(h.konum, "her bulgunun sayfadaki konumu olmalı")
+
+    def test_on_inceleme_raporu(self):
+        hatalar, ist = kitabi_denetle(ORNEK_PDF, sinif=4)
+        metin = html_rapor(hatalar, ist, "ornek_kitap.pdf", 4)
+        for bolum in ["Bilimsel Yeterlik", "Dil ve Anlatım Yeterliği", "Çetinkaya-Uzun", "Bezirci-Yılmaz",
+                      "4. Sınıf (İlkokul)", "ön inceleme"]:
+            self.assertIn(bolum, metin)
+        self.assertNotIn("http", metin, "rapor dış bağlantı içermemeli")
 
 
 if __name__ == "__main__":

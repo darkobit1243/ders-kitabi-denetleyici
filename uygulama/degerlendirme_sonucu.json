@@ -1,0 +1,29 @@
+{
+  "kitap": "matematik-9sinif-ders-kitabi-1kitap_20261006_102913_502.pdf",
+  "sinif": 9,
+  "tarih": "09.11.2026",
+  "yakalama": {
+    "Yazım hatası (harf eksik)": {
+      "bulunan": 98,
+      "denenen": 100,
+      "oran": 98.0
+    },
+    "Noktalama (virgülden önce boşluk)": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
+    },
+    "Çelişen sayısal bilgi": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
+    },
+    "Çok uzun cümle": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
+    }
+  },
+  "temiz_paragraf": 500,
+  "temiz_paragraf_yazim_bulgusu": 39
+}
