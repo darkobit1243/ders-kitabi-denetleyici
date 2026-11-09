@@ -9,13 +9,14 @@ from datetime import datetime
 from html import escape
 
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI, UZUN_AD
+from yas_seviyesi import sinif_adi
 
-KRITER_SIRASI = ["Yazım", "Tutarlılık", "Yaş seviyesi"]
+KRITER_SIRASI = ["Yazım", "Tutarlılık", "Yaş Seviyesi"]
 KRITER_ACIKLAMALARI = {
     "Yazım": "Sık yapılan yazım hataları, Türkçe sözlükte bulunmayan kelimeler ve noktalama kuralları.",
     "Tutarlılık": "Kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi ve aynı kelimenin "
                   "farklı yazılışları.",
-    "Yaş seviyesi": "Ateşman okunabilirlik puanı ve sınıf düzeyine göre çok uzun cümleler.",
+    "Yaş Seviyesi": "Ateşman okunabilirlik puanı ve sınıf düzeyine göre çok uzun cümleler.",
 }
 
 STIL = """
@@ -47,7 +48,7 @@ def html_rapor(hatalar, istatistik, kitap_adi: str, sinif: int, tarih: datetime 
         f"<h1>Ders Kitabı Denetim Raporu</h1><p class='alt'>{e(UZUN_AD)}</p>",
         "<table class='bilgi'>",
         f"<tr><td>Kitap dosyası</td><td>{e(kitap_adi)}</td></tr>",
-        f"<tr><td>Sınıf düzeyi</td><td>{sinif}. sınıf</td></tr>",
+        f"<tr><td>Sınıf düzeyi</td><td>{sinif_adi(sinif, kademe_ile=True)}</td></tr>",
         f"<tr><td>Denetim tarihi</td><td>{tarih:%d.%m.%Y %H:%M}</td></tr>",
         f"<tr><td>İncelenen paragraf</td><td>{istatistik['incelenen_paragraf']} "
         f"(formül/tablo olarak atlanan: {istatistik['atlanan_paragraf']})</td></tr>",

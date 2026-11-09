@@ -11,24 +11,35 @@ Kelimeler ne kadar uzun (çok heceli) ve cümleler ne kadar uzunsa puan o kadar 
 from hata import Hata
 from turkce import cumlelere_bol, hece_sayisi, kelimeler
 
-KRITER = "Yaş seviyesi"
+KRITER = "Yaş Seviyesi"
 
 # Sınıf düzeyine göre beklenen en düşük Ateşman puanı ve en uzun cümle (kelime sayısı).
 # Bu eşikleri projede biz belirledik: küçük sınıflarda daha kolay metin bekleniyor.
 SEVIYELER = [
-    (range(1, 5), 70, 12),    # İlkokul (1-4. sınıf): kolay metin, kısa cümleler
-    (range(5, 9), 50, 18),    # Ortaokul (5-8. sınıf): orta zorluk
-    (range(9, 13), 30, 25),   # Lise (9-12. sınıf): zor metin kabul edilebilir
+    (range(1, 5), "İlkokul", 70, 12),     # kolay metin, kısa cümleler
+    (range(5, 9), "Ortaokul", 50, 18),    # orta zorluk
+    (range(9, 13), "Lise", 30, 25),       # zor metin kabul edilebilir
 ]
 
 EN_AZ_KELIME = 15   # çok kısa paragraflarda formül güvenilir sonuç vermez
 
 
-def esikler(sinif: int):
-    for siniflar, en_dusuk_puan, en_uzun_cumle in SEVIYELER:
+def _seviye(sinif: int):
+    for siniflar, kademe, en_dusuk_puan, en_uzun_cumle in SEVIYELER:
         if sinif in siniflar:
-            return en_dusuk_puan, en_uzun_cumle
+            return kademe, en_dusuk_puan, en_uzun_cumle
     raise ValueError("Sınıf 1 ile 12 arasında olmalı.")
+
+
+def esikler(sinif: int):
+    _, en_dusuk_puan, en_uzun_cumle = _seviye(sinif)
+    return en_dusuk_puan, en_uzun_cumle
+
+
+def sinif_adi(sinif: int, kademe_ile: bool = False) -> str:
+    """Resmî yazım: "9. Sınıf" veya kademe_ile=True ise "9. Sınıf (Lise)"."""
+    ad = f"{sinif}. Sınıf"
+    return f"{ad} ({_seviye(sinif)[0]})" if kademe_ile else ad
 
 
 def atesman_puani(metin: str) -> float:
@@ -71,7 +82,7 @@ def denetle(paragraf, sinif: int) -> list:
         if kelime_sayisi > en_uzun_cumle and not isim_listesi_mi(kelime_listesi):
             hatalar.append(Hata(
                 paragraf.sayfa, paragraf.paragraf_no, KRITER,
-                f"Cümle çok uzun: {kelime_sayisi} kelime ({sinif}. sınıf için en fazla {en_uzun_cumle} önerilir).",
+                f"Cümle çok uzun: {kelime_sayisi} kelime ({sinif_adi(sinif)} için en fazla {en_uzun_cumle} önerilir).",
                 cumle, "Cümleyi birkaç kısa cümleye bölün."))
 
     # 2) Paragrafın genel okunabilirliği
@@ -80,7 +91,7 @@ def denetle(paragraf, sinif: int) -> list:
         if puan < en_dusuk_puan:
             hatalar.append(Hata(
                 paragraf.sayfa, paragraf.paragraf_no, KRITER,
-                f"Okunabilirlik puanı {puan:.0f} ({zorluk_adi(puan)}); {sinif}. sınıf için en az "
+                f"Okunabilirlik puanı {puan:.0f} ({zorluk_adi(puan)}); {sinif_adi(sinif)} için en az "
                 f"{en_dusuk_puan} beklenir.",
                 paragraf.metin[:150] + ("..." if len(paragraf.metin) > 150 else ""),
                 "Daha kısa cümleler ve daha az heceli, tanıdık kelimeler kullanın."))

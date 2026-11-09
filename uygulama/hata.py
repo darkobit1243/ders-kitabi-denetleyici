@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class Hata:
     sayfa: int
     paragraf_no: int
-    kriter: str         # "Yazım", "Yaş seviyesi" veya "Tutarlılık"
+    kriter: str         # "Yazım", "Yaş Seviyesi" veya "Tutarlılık"
     aciklama: str       # hatanın ne olduğu
     alinti: str         # metinde hatanın geçtiği kısım
     oneri: str = ""     # varsa doğru yazım / öneri

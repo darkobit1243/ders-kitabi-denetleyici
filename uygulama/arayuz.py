@@ -16,12 +16,13 @@ from denetleyici import kitabi_denetle
 from pdf_okuyucu import TESSDATA
 from rapor import KRITER_ACIKLAMALARI, html_rapor
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI
+from yas_seviyesi import sinif_adi
 
 PROJE_KLASORU = os.path.dirname(os.path.abspath(__file__))
 YUKLEME_KLASORU = os.path.join(PROJE_KLASORU, ".yuklenenler")  # OCR önbelleği dosya adını kullanıyor
 ORNEKLER_KLASORU = os.path.join(os.path.dirname(PROJE_KLASORU), "ornekler")   # program klasörünün yanında
-KRITERLER = ["Yazım", "Tutarlılık", "Yaş seviyesi"]
-KRITER_RENKLERI_PDF = {"Yazım": (0.78, 0.16, 0.16), "Tutarlılık": (0.12, 0.37, 0.75), "Yaş seviyesi": (0.9, 0.5, 0.0)}
+KRITERLER = ["Yazım", "Tutarlılık", "Yaş Seviyesi"]
+KRITER_RENKLERI_PDF = {"Yazım": (0.78, 0.16, 0.16), "Tutarlılık": (0.12, 0.37, 0.75), "Yaş Seviyesi": (0.9, 0.5, 0.0)}
 
 st.set_page_config(page_title=UYGULAMA_ADI, page_icon=os.path.join(PROJE_KLASORU, "simge.png"),
                    layout="wide", initial_sidebar_state="expanded")
@@ -77,7 +78,7 @@ def karsilama():
     st.markdown('<div class="bolum-baslik">Nasıl kullanılır?</div>', unsafe_allow_html=True)
     for sutun, (no, baslik, metin) in zip(st.columns(3), [
         (1, "Kitabı seçin", "Soldaki panelden ders kitabının PDF dosyasını yükleyin veya örnek kitaplardan birini seçin."),
-        (2, "Sınıf düzeyini belirleyin", "Yaş seviyesi denetimi, kitabın hitap ettiği sınıfa göre farklı ölçütler kullanır."),
+        (2, "Sınıf düzeyini belirleyin", "Yaş Seviyesi denetimi, kitabın hitap ettiği sınıfa göre farklı ölçütler kullanır."),
         (3, "Denetimi başlatın", "Denetle butonuna basın. Bulgular sayfa ve paragraf bilgisiyle listelenir; "
                                  "bir bulgu seçildiğinde kitabın ilgili sayfası işaretlenmiş olarak gösterilir."),
     ]):
@@ -88,16 +89,16 @@ def karsilama():
         sutun.markdown(stil.kriter_karti(kriter, KRITER_ACIKLAMALARI[kriter]), unsafe_allow_html=True)
 
     st.write("")
-    with st.expander("Yöntem ve sınırlamalar"):
+    with st.expander("Yöntem ve Sınırlamalar"):
         st.markdown(
-            "**Yazım ve noktalama.** Türkçe'de sık yapılan yazım hataları listesi, Türkçe biçimbilim "
+            "**Yazım ve Noktalama.** Türkçe'de sık yapılan yazım hataları listesi, Türkçe biçimbilim "
             "çözümleyicisi (zeyrek) ile sözlükte bulunmayan kelimeler ve noktalama kuralları.\n\n"
-            "**Bilgi tutarlılığı.** Kitabın bütünü taranır. Kelime kökleri neredeyse aynı olan ama farklı "
+            "**Bilgi Tutarlılığı.** Kitabın bütünü taranır. Kelime kökleri neredeyse aynı olan ama farklı "
             "sayılar içeren bildirme cümleleri çelişki olarak raporlanır. Aynı kelimenin hem bitişik hem ayrı "
             "yazıldığı durumlar (ör. \"eş kenar\" / \"eşkenar\") da gösterilir.\n\n"
-            "**Yaş seviyesi.** Her paragrafın Ateşman okunabilirlik puanı hesaplanır ve sınıf düzeyine göre "
-            "belirlenen eşikle karşılaştırılır (ilkokul en az 70, ortaokul 50, lise 30). Sınıf düzeyine göre "
-            "çok uzun cümleler ayrıca raporlanır (ilkokul 12, ortaokul 18, lise 25 kelime).\n\n"
+            "**Yaş Seviyesi.** Her paragrafın Ateşman okunabilirlik puanı hesaplanır ve sınıf düzeyine göre "
+            "belirlenen eşikle karşılaştırılır (İlkokul en az 70, Ortaokul 50, Lise 30). Sınıf düzeyine göre "
+            "çok uzun cümleler ayrıca raporlanır (İlkokul 12, Ortaokul 18, Lise 25 kelime).\n\n"
             "**Sınırlamalar.** Bulgular *olası* hatalardır ve uzman kontrolü gerektirir. Matematik formülleri "
             "ve tablolar PDF'ten metin olarak okunamadığı için denetlenmez. Taranmış sayfalarda OCR kaynaklı "
             "okuma hataları olabileceği için sözlük kontrolü yapılmaz. Kurallar ağırlıklı olarak matematik "
@@ -127,7 +128,7 @@ with st.sidebar:
 
     st.markdown(stil.kenar_adim(2, "Sınıf düzeyini belirleyin"), unsafe_allow_html=True)
     sinif = st.selectbox("Sınıf düzeyi", list(range(1, 13)), index=8, label_visibility="collapsed",
-                         format_func=lambda s: f"{s}. sınıf  ({'ilkokul' if s <= 4 else 'ortaokul' if s <= 8 else 'lise'})")
+                         format_func=lambda s: sinif_adi(s, kademe_ile=True))
 
     st.markdown(stil.kenar_adim(3, "Denetimi başlatın"), unsafe_allow_html=True)
     baslat = st.button("Denetle", type="primary", width="stretch", disabled=pdf_baytlari is None)
@@ -164,7 +165,7 @@ sayilar = {k: sum(h.kriter == k for h in hatalar) for k in KRITERLER}
 
 # ---------------- Özet ----------------
 tarih = st.session_state.get("tarih")
-st.markdown(f'<div class="kitap-bilgi">📘 <b>{pdf_adi}</b> &nbsp;·&nbsp; {sinif}. sınıf &nbsp;·&nbsp; '
+st.markdown(f'<div class="kitap-bilgi">📘 <b>{pdf_adi}</b> &nbsp;·&nbsp; {sinif_adi(sinif, kademe_ile=True)} &nbsp;·&nbsp; '
             f'{ist["sayfa_sayisi"]} sayfa &nbsp;·&nbsp; Denetim: {tarih:%d.%m.%Y %H:%M}</div>',
             unsafe_allow_html=True)
 

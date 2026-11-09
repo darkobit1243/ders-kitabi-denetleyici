@@ -124,7 +124,7 @@ class UctanUca(unittest.TestCase):
     def test_ornek_kitap(self):
         hatalar, ist = kitabi_denetle(ORNEK_PDF, sinif=4)
         kriterler = {h.kriter for h in hatalar}
-        self.assertEqual(kriterler, {"Yazım", "Tutarlılık", "Yaş seviyesi"})
+        self.assertEqual(kriterler, {"Yazım", "Tutarlılık", "Yaş Seviyesi"})
         self.assertIn("Herkez", [h.alinti for h in hatalar])
         for h in hatalar:
             self.assertIsNotNone(h.konum, "her bulgunun sayfadaki konumu olmalı")
