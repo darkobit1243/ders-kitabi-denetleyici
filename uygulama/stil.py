@@ -66,6 +66,12 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .alt-bilgi {{ color: #6b778a; font-size: .8rem; text-align: center; margin-top: 28px;
   padding-top: 12px; border-top: 1px solid #e1e6ee; }}
 
+/* Dayanaklar tablosu */
+.dayanak-tablo {{ width: 100%; border-collapse: collapse; font-size: .88rem; background: #fff; }}
+.dayanak-tablo th {{ background: #e8eef7; color: {LACIVERT}; text-align: left; padding: 7px 9px; }}
+.dayanak-tablo td {{ border-top: 1px solid #e1e6ee; padding: 7px 9px; vertical-align: top; }}
+.dayanak-tur {{ color: #fff; border-radius: 999px; padding: 2px 9px; font-size: .78rem; white-space: nowrap; }}
+
 /* Kenar çubuğu */
 section[data-testid="stSidebar"] {{ background: #fff; border-right: 1px solid #e1e6ee; }}
 .kenar-baslik {{ display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }}
@@ -126,6 +132,19 @@ def ozet_karti(deger, etiket: str, renk: str = LACIVERT) -> str:
         deger = f"{deger:,}".replace(",", ".")    # Türkçe binlik ayırıcı: 1.393
     return (f'<div class="ozet" style="--renk:{renk}"><div class="deger">{deger}</div>'
             f'<div class="etiket">{escape(etiket)}</div></div>')
+
+
+DAYANAK_RENKLERI = {"Resmî": "#12315f", "Bilimsel": "#2e7d32", "Proje": "#8a6d00"}
+
+
+def dayanak_tablosu(satirlar) -> str:
+    """Kriter – neye bakılıyor – dayanak türü – dayanak tablosu (uzun metinler satır kırarak gösterilir)."""
+    govde = "".join(
+        f"<tr><td><b>{escape(k)}</b></td><td>{escape(n)}</td>"
+        f"<td><span class='dayanak-tur' style='background:{DAYANAK_RENKLERI.get(t, LACIVERT)}'>{escape(t)}</span></td>"
+        f"<td>{escape(d)}</td></tr>" for k, n, t, d in satirlar)
+    return ("<table class='dayanak-tablo'><tr><th>Kriter</th><th>Neye bakılıyor</th><th>Tür</th><th>Dayanak</th></tr>"
+            f"{govde}</table>")
 
 
 def ayrinti_karti(baslik: str, metin: str, renk: str) -> str:

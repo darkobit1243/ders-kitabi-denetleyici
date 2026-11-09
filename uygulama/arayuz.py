@@ -12,6 +12,7 @@ import pandas as pd
 import pymupdf
 import streamlit as st
 
+import kaynaklar
 import stil
 from denetleyici import kitabi_denetle
 from pdf_okuyucu import TESSDATA
@@ -124,34 +125,57 @@ def karsilama():
         sutun.markdown(stil.kriter_karti(kriter, KRITER_ACIKLAMALARI[kriter]), unsafe_allow_html=True)
 
     st.write("")
-    with st.expander("Yöntem ve Sınırlamalar"):
-        st.markdown(
-            "**Yazım ve Noktalama.** Türkçe'de sık yapılan yazım hataları listesi, Türkçe biçimbilim "
-            "çözümleyicisi (zeyrek) ile sözlükte bulunmayan kelimeler ve noktalama kuralları.\n\n"
-            "**Bilgi Tutarlılığı.** Kitabın bütünü taranır. Kelime kökleri neredeyse aynı olan ama farklı "
-            "sayılar içeren bildirme cümleleri çelişki olarak raporlanır. Aynı kelimenin hem bitişik hem ayrı "
-            "yazıldığı durumlar (ör. \"eş kenar\" / \"eşkenar\") da gösterilir.\n\n"
-            "**Yaş Seviyesi.** Her paragrafın Ateşman okunabilirlik puanı hesaplanır ve sınıf düzeyine göre "
-            "belirlenen eşikle karşılaştırılır (İlkokul en az 70, Ortaokul 50, Lise 30). Sınıf düzeyine göre "
-            "çok uzun cümleler ayrıca raporlanır (İlkokul 12, Ortaokul 18, Lise 25 kelime). Kitabın geneli için "
-            "Türkçe'ye özgü üç formülün sonucu birlikte verilir: Ateşman (1997), Çetinkaya-Uzun (2010) ve "
-            "Bezirci-Yılmaz (2010).\n\n"
-            "**İçerik Güvenliği.** Kişisel veriler (doğrulama algoritmasına uyan T.C. kimlik numarası, telefon, "
-            "kişisel e-posta, IBAN), reklam ve ticari unsurlar (®/™, resmî kurum dışı web adresleri, marka listesi, "
-            "satış çağrıları), bağımlılık, şiddet ve hakaret içerebilecek ifadeler taranır. Kelimeler kökleriyle "
-            "karşılaştırılır (\"biraz\" kelimesi \"bira\" sanılmaz). Bu bulgular hata değil, bağlamı kontrol "
-            "edilmesi önerilen ifadelerdir. Kelime ve marka listeleri `hassas_ifadeler.txt` ve "
-            "`marka_listesi.txt` dosyalarından düzenlenebilir.\n\n"
-            "**İnceleme ölçütleri.** Bulgular, Talim ve Terbiye Kurulu Başkanlığının ders kitabı incelemesinde "
-            "kullandığı ölçüt başlıklarından *Bilimsel Yeterlik*, *Dil ve Anlatım Yeterliği* ve *Güvenli, Etik ve "
-            "Çevreci İçerik* altında gruplanır. Sonuç ekranında 27 maddelik inceleme kontrol listesi yer alır. "
-            "Program bir ön inceleme aracıdır; resmî incelemenin yerine geçmez."
-            + dogruluk_metni() +
-            "\n\n**Sınırlamalar.** Bulgular *olası* hatalardır ve uzman kontrolü gerektirir. Matematik formülleri "
-            "ve tablolar PDF'ten metin olarak okunamadığı için denetlenmez. Taranmış sayfalarda OCR kaynaklı "
-            "okuma hataları olabileceği için sözlük kontrolü yapılmaz. Kurallar ağırlıklı olarak matematik "
-            "ders kitabı üzerinde ayarlanmıştır."
-        )
+    yontem_bolumu()
+
+
+def yontem_bolumu():
+    """Programın yöntemi, dayandığı kurallar/kaynaklar ve sınırlamaları (kaynaklar.py'den)."""
+    with st.expander("📚 Yöntem, Dayanaklar ve Sınırlamalar"):
+        st.caption("Programın her bulgusunun hangi kurala dayandığı aşağıda belirtilmiştir. Resmî belgelere dayanan "
+                   "kurallar, akademik yöntemler ve bu projede belirlenen kurallar ayrı ayrı gösterilir.")
+        t1, t2, t3, t4, t5 = st.tabs(["Dayanaklar", "Yöntem", "Kaynakça", "Projede belirlenen kurallar", "Sınırlamalar"])
+
+        with t1:
+            st.markdown("**Hangi kurala ve kaynağa dayanıyoruz?**")
+            st.markdown(stil.dayanak_tablosu(kaynaklar.KRITER_DAYANAKLARI), unsafe_allow_html=True)
+            st.caption("Dayanak türü: **Resmî** = resmî belge veya kurum kuralı · **Bilimsel** = akademik yayın veya "
+                       "açık kaynak dil aracı · **Proje** = bu projede belirlenen, resmî dayanağı olmayan kural.")
+
+        with t2:
+            st.markdown(
+                "**Yazım ve Noktalama.** Türkçe'de sık yapılan yazım hataları listesi, Türkçe biçimbilim "
+                "çözümleyicisi (zeyrek) ile sözlükte bulunmayan kelimeler ve noktalama kuralları.\n\n"
+                "**Bilgi Tutarlılığı.** Kitabın bütünü taranır. Kelime kökleri neredeyse aynı olan ama farklı "
+                "sayılar içeren bildirme cümleleri çelişki olarak raporlanır. Aynı kelimenin hem bitişik hem ayrı "
+                "yazıldığı durumlar (ör. \"eş kenar\" / \"eşkenar\") da gösterilir.\n\n"
+                "**Yaş Seviyesi.** Her paragrafın Ateşman okunabilirlik puanı sınıf düzeyine göre belirlenen eşikle "
+                "karşılaştırılır; sınıf düzeyine göre çok uzun cümleler ayrıca raporlanır. Kitabın geneli için "
+                "Türkçe'ye özgü üç formülün sonucu birlikte verilir: Ateşman (1997), Çetinkaya-Uzun (2010) ve "
+                "Bezirci-Yılmaz (2010).\n\n"
+                "**İçerik Güvenliği.** Kişisel veriler (doğrulama algoritmasına uyan T.C. kimlik numarası, telefon, "
+                "kişisel e-posta, IBAN), reklam ve ticari unsurlar (®/™, resmî kurum dışı web adresleri, marka "
+                "listesi, satış çağrıları), bağımlılık, şiddet ve hakaret içerebilecek ifadeler taranır. Kelimeler "
+                "kökleriyle karşılaştırılır (\"biraz\" kelimesi \"bira\" sanılmaz). Bu bulgular hata değil, bağlamı "
+                "kontrol edilmesi önerilen ifadelerdir.\n\n"
+                "**İnceleme ölçütleri.** Bulgular TTKB'nin ölçüt başlıkları olan *Bilimsel Yeterlik*, *Dil ve "
+                "Anlatım Yeterliği* ve *Güvenli, Etik ve Çevreci İçerik* altında gruplanır; sonuç ekranında 27 "
+                "maddelik inceleme kontrol listesi yer alır."
+                + dogruluk_metni()
+            )
+
+        with t3:
+            st.markdown("**Resmî belgeler**\n\n" + "\n".join(f"- {k}" for k in kaynaklar.RESMI_BELGELER))
+            st.markdown("**Bilimsel kaynaklar**\n\n" + "\n".join(f"- {k}" for k in kaynaklar.BILIMSEL_KAYNAKLAR))
+            st.caption(kaynaklar.DOGRULAMA_NOTU)
+            st.markdown("**Kullanılan açık kaynak araçlar**\n\n" + "\n".join(f"- {k}" for k in kaynaklar.ARACLAR))
+
+        with t4:
+            st.warning("Aşağıdaki kurallar resmî bir belgeden alınmamıştır; bu projede belirlenmiştir ve "
+                       "gerekirse değiştirilebilir.")
+            st.markdown("\n".join(f"- {k}" for k in kaynaklar.PROJE_KURALLARI))
+
+        with t5:
+            st.markdown("\n".join(f"- {k}" for k in kaynaklar.SINIRLAMALAR))
 
 
 # ---------------- Kenar çubuğu: adım adım girişler ----------------
@@ -319,4 +343,5 @@ with sag:
                     'kitabın ilgili sayfası burada,<br>hatalı bölüm işaretlenmiş olarak gösterilir.</div>',
                     unsafe_allow_html=True)
 
+yontem_bolumu()
 alt_bilgi()

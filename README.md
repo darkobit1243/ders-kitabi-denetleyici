@@ -137,6 +137,7 @@ ve ön inceleme raporunu kapsar.
 | `tutarlilik.py` | Kriter 2: çelişen sayısal bilgiler ve yazım birliği |
 | `yas_seviyesi.py` | Kriter 3: Ateşman okunabilirlik ve cümle uzunluğu |
 | `icerik_guvenligi.py` | Kriter 4: kişisel veri, ticari unsur, hassas ifade taraması |
+| `kaynaklar.py` | Dayanaklar, kaynakça, proje kuralları ve sınırlamalar (arayüz ve rapor ortak) |
 | `kontrol_listesi.py` | 27 maddelik inceleme kontrol listesi |
 | `hassas_ifadeler.txt`, `marka_listesi.txt` | Düzenlenebilir tarama listeleri |
 | `okunabilirlik.py` | Ateşman, Çetinkaya-Uzun ve Bezirci-Yılmaz formülleri |
@@ -150,6 +151,47 @@ ve ön inceleme raporunu kapsar.
 | `kisayol.ps1`, `kaldir.bat`, `paketleri_hazirla.bat` | Kısayol, kaldırma, çevrimdışı paket hazırlama |
 | `tessdata/` | OCR dil dosyaları (Tesseract, Apache 2.0) |
 | `testler/` | Otomatik testler |
+
+## Dayanaklar ve kaynaklar
+Programın her kuralının neye dayandığı aşağıdadır (aynı bilgi arayüzdeki "Yöntem, Dayanaklar ve Sınırlamalar" bölümünde ve ön inceleme raporunda da yer alır; kaynağı `uygulama\kaynaklar.py`).
+
+| Kriter | Neye bakılıyor | Tür | Dayanak |
+|---|---|---|---|
+| Yazım ve noktalama | Sık yapılan yazım hataları, noktalama işaretinden önce/sonra boşluk, aynı bağlacın tekrarı | Resmî | Türk Dil Kurumu, Yazım Kılavuzu (yazım ve noktalama kuralları) |
+| Yazım ve noktalama | Türkçe sözlükte bulunmayan kelimeler | Bilimsel | zeyrek biçimbilim çözümleyicisi (Zemberek-NLP sözlüğü) |
+| Bilgi tutarlılığı | Kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi | Bilimsel | Türkçe için ilk 5 harf kök bulma yöntemi (Can ve diğerleri, 2008) ve Jaccard benzerliği |
+| Bilgi tutarlılığı | Aynı kelimenin bitişik/ayrı veya tireli/tiresiz yazılması (yazım birliği) | Resmî | Türk Dil Kurumu, Yazım Kılavuzu (birleşik kelimelerin yazımı) |
+| Yaş seviyesi | Kitabın genel okunabilirliği | Bilimsel | Ateşman (1997), Çetinkaya-Uzun (2010), Bezirci-Yılmaz (2010) okunabilirlik formülleri |
+| Yaş seviyesi | Paragraf bazında okunabilirlik eşiği ve en uzun cümle sınırı | Proje | İlkokul / Ortaokul / Lise için eşikler bu projede belirlenmiştir; resmî bir ölçüt değildir |
+| İçerik güvenliği | 4.1 Kişisel veriler (T.C. kimlik no, telefon, e-posta, IBAN) | Resmî | TTKB 26.05.2025 kriterleri, madde 4.1; 6698 sayılı Kişisel Verilerin Korunması Kanunu |
+| İçerik güvenliği | 4.2 Reklam ve ticari yönlendirme | Resmî | TTKB 26.05.2025 kriterleri, madde 4.2 |
+| İçerik güvenliği | 4.4 Bağımlılık yapıcı unsurlar, 4.5 Şiddet ve hakaret | Resmî | TTKB 26.05.2025 kriterleri, madde 4.4 ve 4.5 (taranan kelime listesi projede hazırlanmıştır) |
+| Bulguların gruplanması | Bilimsel Yeterlik, Dil ve Anlatım Yeterliği başlıkları | Resmî | TTKB taslak ders kitabı başvuru kılavuzunda (2025) sayılan değerlendirme başlıkları |
+| Bulguların gruplanması | Güvenli, Etik ve Çevreci İçerik başlığı ve 27 maddelik kontrol listesi | Resmî | TTKB 26.05.2025 tarihli ve 133204310 sayılı Kurul Mütalaası ile kabul edilen kriterler |
+
+**Tür:** Resmî = resmî belge veya kurum kuralı · Bilimsel = akademik yayın veya açık kaynak dil aracı · Proje = bu projede belirlenen, resmî dayanağı olmayan kural.
+
+### Projede belirlenen kurallar (resmî değildir)
+- Yaş seviyesi eşikleri: Ateşman puanı İlkokul en az 70, Ortaokul en az 50, Lise en az 30; en uzun cümle İlkokul 12, Ortaokul 18, Lise 25 kelime. Ateşman'ın düzey tablosu esas alınarak bu projede belirlenmiştir.
+- Bezirci-Yılmaz değeri, kitabın kademesinin (İlköğretim 1-8, Lise 9-12) üst sınırını aşan paragraflar "kademenin üstünde" sayılır.
+- Formül ve tablo parçaları (en az 4 gerçek kelime ve %70 kelime oranı taşımayan paragraflar) denetlenmez.
+- Çelişki için iki cümlenin kök benzerliği en az 0,6 olmalı; soru, yönerge, başlık, "bu/şu" içeren cümleler ve Görsel/Şekil numaraları karşılaştırılmaz.
+- Sık yapılan yazım hataları, ek sözlük, hassas ifade ve marka listeleri bu projede hazırlanmıştır ve düzenlenebilir dosyalarda tutulur.
+
+### Kaynakça
+**Resmî belgeler**
+- Talim ve Terbiye Kurulu Başkanlığı (2025). Farklı Okul Türlerinde Kullanılan Ders Kitabı ile Diğer Eğitim Araç ve Gereçlerinin İncelenmesine Esas Olacak Kriterler. 26.05.2025 tarihli ve 133204310 sayılı Kurul Mütalaası. (Milletlerarası özel öğretim kurumları, yabancılar tarafından açılmış özel okullar, azınlık okulları ve UDSP uygulayan ortaöğretim kurumları için.)
+- Talim ve Terbiye Kurulu Başkanlığı (2024). 2025 Yılı Taslak Ders Kitabı Başvuru Kılavuzu.
+- Türk Dil Kurumu. Yazım Kılavuzu.
+- 6698 sayılı Kişisel Verilerin Korunması Kanunu.
+
+**Bilimsel kaynaklar**
+- Ateşman, E. (1997). Türkçede okunabilirliğin ölçülmesi. Dil Dergisi, 58.
+- Bezirci, B. ve Yılmaz, A. E. (2010). Metinlerin okunabilirliğinin ölçülmesi üzerine bir yazılım kütüphanesi ve Türkçe için yeni bir okunabilirlik ölçütü. DEÜ Mühendislik Fakültesi Fen Bilimleri Dergisi, 12(3), 49-62.
+- Çetinkaya, G. (2010). Türkçe metinlerin okunabilirlik düzeylerinin tanımlanması ve sınıflandırılması (Doktora tezi). Ankara Üniversitesi Sosyal Bilimler Enstitüsü. (Literatürde Çetinkaya-Uzun formülü olarak anılır.)
+- Can, F., Koçberber, S., Balçık, E., Kaynak, C., Öcalan, H. Ç. ve Vursavaş, O. M. (2008). Information retrieval on Turkish texts. Journal of the American Society for Information Science and Technology, 59(3).
+
+Okunabilirlik formüllerinin katsayıları ve düzey tabloları, bu formülleri kullanan iki akademik makaleden karşılaştırılarak doğrulanmıştır.
 
 ## Bilinen sınırlamalar
 - Bulgular **olası** hatalardır; her bulgunun bir uzman tarafından kitapta kontrol edilmesi gerekir.

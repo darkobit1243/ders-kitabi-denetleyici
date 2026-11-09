@@ -12,6 +12,7 @@ from collections import Counter
 from datetime import datetime
 from html import escape
 
+import kaynaklar
 from kontrol_listesi import KAPSAM_NOTU, KAYNAK, durumlar
 from olcutler import ALT_BASLIK_SIRASI, OLCUT_SIRASI, olcut
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI, UZUN_AD
@@ -103,6 +104,27 @@ def dogruluk_bolumu() -> list:
     ]
 
 
+def dayanaklar_bolumu() -> list:
+    e = escape
+    satirlar = "".join(f"<tr><td>{e(k)}</td><td>{e(n)}</td><td>{e(t)}</td><td>{e(d)}</td></tr>"
+                       for k, n, t, d in kaynaklar.KRITER_DAYANAKLARI)
+    liste = lambda ogeler: "<ul>" + "".join(f"<li>{e(o)}</li>" for o in ogeler) + "</ul>"
+    return [
+        "<h2>Dayanaklar ve Kaynaklar</h2>",
+        "<h3>Hangi kurala ve kaynağa dayanılıyor?</h3>",
+        "<table><tr><th>Kriter</th><th>Neye bakılıyor</th><th>Dayanak türü</th><th>Dayanak</th></tr>"
+        f"{satirlar}</table>",
+        "<p class='not'>Dayanak türü: Resmî = resmî belge veya kurum kuralı; Bilimsel = akademik yayın veya açık "
+        "kaynak dil aracı; Proje = bu projede belirlenen, resmî dayanağı olmayan kural.</p>",
+        "<h3>Projede belirlenen kurallar (resmî değildir)</h3>", liste(kaynaklar.PROJE_KURALLARI),
+        "<h3>Sınırlamalar</h3>", liste(kaynaklar.SINIRLAMALAR),
+        "<h3>Kaynakça</h3><p class='not'><b>Resmî belgeler</b></p>", liste(kaynaklar.RESMI_BELGELER),
+        "<p class='not'><b>Bilimsel kaynaklar</b></p>", liste(kaynaklar.BILIMSEL_KAYNAKLAR),
+        f"<p class='not'>{e(kaynaklar.DOGRULAMA_NOTU)}</p>",
+        "<p class='not'><b>Kullanılan açık kaynak araçlar</b></p>", liste(kaynaklar.ARACLAR),
+    ]
+
+
 def kontrol_listesi_bolumu(hatalar) -> list:
     satirlar = []
     for madde, baslik, icerik, durum, sayi in durumlar(hatalar):
@@ -186,6 +208,7 @@ def html_rapor(hatalar, istatistik, kitap_adi: str, sinif: int, tarih: datetime 
 
     parcalar += kontrol_listesi_bolumu(hatalar)
     parcalar += dogruluk_bolumu()
+    parcalar += dayanaklar_bolumu()
 
     parcalar.append(f"<p class='alti'>{e(UYGULAMA_ADI)} {SURUM} · Geliştiren: {e(GELISTIRICI)} · "
                     f"{e(ACIKLAMA)} Tüm işlemler bilgisayarda yerel olarak yapılmıştır.</p></body></html>")

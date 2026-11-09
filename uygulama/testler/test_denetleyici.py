@@ -200,7 +200,8 @@ class UctanUca(unittest.TestCase):
         metin = html_rapor(hatalar, ist, "ornek_kitap.pdf", 4)
         for bolum in ["Bilimsel Yeterlik", "Dil ve Anlatım Yeterliği", "Çetinkaya-Uzun", "Bezirci-Yılmaz",
                       "4. Sınıf (İlkokul)", "ön inceleme", "İnceleme Kontrol Listesi",
-                      "Güvenli, Etik ve Çevreci İçerik", "4.1 Kişisel verilerin korunması"]:
+                      "Güvenli, Etik ve Çevreci İçerik", "4.1 Kişisel verilerin korunması",
+                      "Dayanaklar ve Kaynaklar", "Projede belirlenen kurallar", "Ateşman, E. (1997)"]:
             self.assertIn(bolum, metin)
         self.assertNotIn("http", metin, "rapor dış bağlantı içermemeli")
 
