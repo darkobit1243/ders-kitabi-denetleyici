@@ -92,7 +92,8 @@ zeyrek düzeltmesi, internetsiz çalışma ve test PDF'i üzerinde uçtan uca de
 | `main.py` | Komut satırı kullanımı |
 | `ek_sozluk.txt` | Sözlükte eksik olan doğru kelimeler (her satıra bir kelime eklenebilir) |
 | `turkce.py`, `hata.py`, `surum.py` | Ortak yardımcılar ve uygulama bilgileri |
-| `kisayol.ps1`, `kaldir.bat`, `paketleri_hazirla.bat`, `simge.ico` | Kısayol, kaldırma, çevrimdışı paket hazırlama, simge |
+| `stil.py`, `simge.png`, `simge.ico` | Arayüz tasarımı ve program simgesi |
+| `kisayol.ps1`, `kaldir.bat`, `paketleri_hazirla.bat` | Kısayol, kaldırma, çevrimdışı paket hazırlama |
 | `tessdata/` | OCR dil dosyaları (Tesseract, Apache 2.0) |
 | `testler/` | Otomatik testler |
 
