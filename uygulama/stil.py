@@ -20,10 +20,17 @@ with open(_SIMGE, "rb") as f:
 
 CSS = f"""
 <style>
-/* Streamlit'in geliştirici menüsünü, Deploy butonunu ve üst renk şeridini gizle */
-[data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"],
-#MainMenu, footer {{ display: none !important; }}
+/* Streamlit'in geliştirici menüsünü, Deploy butonunu ve üst renk şeridini gizle.
+   Araç çubuğunun (stToolbar) tamamı gizlenmez: kenar çubuğunu yeniden açan buton onun içindedir. */
+[data-testid="stMainMenu"], [data-testid="stToolbarActions"], [data-testid="stAppDeployButton"],
+[data-testid="stDecoration"], [data-testid="stStatusWidget"], footer {{ display: none !important; }}
 header[data-testid="stHeader"] {{ background: transparent; }}
+
+/* Kenar çubuğunu açma butonu: kapatıldığında sol üstte belirgin bir "Menü" düğmesi olarak görünür */
+[data-testid="stExpandSidebarButton"] {{ background: {LACIVERT} !important; color: #fff !important;
+  border-radius: 8px !important; padding: 4px 10px !important; box-shadow: 0 2px 6px rgba(18,49,95,.25); }}
+[data-testid="stExpandSidebarButton"]::after {{ content: "Menü"; font-size: .85rem; margin-left: 4px; }}
+[data-testid="stExpandSidebarButton"] * {{ color: #fff !important; }}
 .block-container {{ padding-top: 1.2rem; padding-bottom: 2rem; max-width: 1400px; }}
 
 /* Üst bant */
