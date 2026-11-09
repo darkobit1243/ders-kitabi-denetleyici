@@ -24,7 +24,7 @@ from metin_filtresi import incelenebilir_mi          # noqa: E402
 from pdf_okuyucu import Paragraf, satirlari_birlestir  # noqa: E402
 from turkce import cumlelere_bol, hece_sayisi, kucuk_harf  # noqa: E402
 
-ORNEK_PDF = os.path.join(os.path.dirname(PROJE), "ornekler", "ornek_kitap.pdf")
+ORNEK_PDF = os.path.join(PROJE, "testler", "ornek_kitap.pdf")
 
 
 def paragraf(metin, sayfa=1, no=1):
@@ -181,6 +181,27 @@ class IcerikGuvenligi(unittest.TestCase):
         self.assertEqual(len(maddeler), 27)
         otomatik = [d[0] for d in maddeler if d[3].startswith("Otomatik")]
         self.assertEqual(otomatik, ["4.1", "4.2", "4.4", "4.5"])
+
+
+class OrnekKitaplarCevapAnahtari(unittest.TestCase):
+    """Programla birlikte verilen her örnek kitapta, cevap anahtarındaki hataların hepsi bulunmalı ve
+    anahtarda olmayan hiçbir bulgu çıkmamalı."""
+
+    def test_her_ornek_kitap(self):
+        import ornek_kitaplari_olustur as ornek
+        for kitap in ornek.KITAPLAR:
+            yol = os.path.join(ornek.ORNEKLER, kitap["dosya"])
+            if not os.path.exists(yol):
+                self.skipTest(f"{kitap['dosya']} bulunamadı")
+            with self.subTest(kitap=kitap["dosya"]):
+                hatalar, _ = kitabi_denetle(yol, kitap["sinif"])
+                eslesir = lambda h, b: (h.sayfa == b[0] and h.kriter == b[1]
+                                        and b[3] in h.alinti + " " + h.aciklama)
+                eksik = [b[:3] for b in kitap["hatalar"] if not any(eslesir(h, b) for h in hatalar)]
+                fazla = [(h.sayfa, h.kriter, h.alinti) for h in hatalar
+                         if not any(eslesir(h, b) for b in kitap["hatalar"])]
+                self.assertEqual(eksik, [], "bulunamayan beklenen hatalar")
+                self.assertEqual(fazla, [], "cevap anahtarında olmayan bulgular")
 
 
 @unittest.skipUnless(os.path.exists(ORNEK_PDF), "ornek_kitap.pdf bulunamadı")
