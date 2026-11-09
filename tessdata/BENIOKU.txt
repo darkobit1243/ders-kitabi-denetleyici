@@ -1,0 +1,6 @@
+Bu klasördeki dil dosyaları (tur.traineddata, eng.traineddata) Tesseract OCR
+projesine aittir ve Apache License 2.0 ile dağıtılmaktadır:
+https://github.com/tesseract-ocr/tessdata_fast
+
+Dosyalar, taranmış (resim) sayfaların bilgisayara ayrıca Tesseract kurulmadan
+okunabilmesi için programla birlikte verilmektedir.

@@ -10,6 +10,11 @@ ornekler/*.pdf
 
 # Program çıktısı olan raporlar
 rapor_*.csv
+bulgular_*.csv
 
 # Arayuze yuklenen PDF dosyalari
 .yuklenenler/
+
+# Cevrimdisi kurulum paketleri (paketleri_hazirla.bat ile olusturulur)
+paketler/
+denetim_raporu_*.html

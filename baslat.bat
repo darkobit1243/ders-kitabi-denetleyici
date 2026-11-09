@@ -12,11 +12,16 @@ if not exist "%USERPROFILE%\.streamlit\credentials.toml" (
     )
 )
 
-if exist "..\.venv\Scripts\python.exe" (
-    "..\.venv\Scripts\python.exe" -m streamlit run arayuz.py
-) else if exist ".venv\Scripts\python.exe" (
-    ".venv\Scripts\python.exe" -m streamlit run arayuz.py
+if exist ".venv\Scripts\python.exe" (
+    set PYTHON=".venv\Scripts\python.exe"
+) else if exist "..\.venv\Scripts\python.exe" (
+    set PYTHON="..\.venv\Scripts\python.exe"
 ) else (
-    python -m streamlit run arayuz.py
+    echo [HATA] Program kurulmamis. Once kurulum.bat dosyasina cift tiklayin.
+    pause
+    exit /b 1
 )
+
+echo Ders Kitabi Denetleyici baslatiliyor. Bu pencereyi program kullanildigi surece kapatmayin.
+%PYTHON% -m streamlit run arayuz.py
 pause

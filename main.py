@@ -1,6 +1,6 @@
 """Komut satırından kullanım:
 
-    python main.py kitap.pdf --sinif 9            # hataları bulur, CSV rapor oluşturur
+    python main.py kitap.pdf --sinif 9            # hataları bulur, CSV ve HTML rapor oluşturur
     python main.py kitap.pdf --paragraflar         # yalnızca çıkarılan paragrafları listeler
 """
 
@@ -12,6 +12,7 @@ from collections import Counter
 
 from denetleyici import kitabi_denetle
 from pdf_okuyucu import paragraflari_cikar
+from rapor import html_rapor
 
 ORNEK_SAYISI = 10   # ekranda her kriterden kaç örnek gösterilsin
 
@@ -67,6 +68,12 @@ def main():
         print()
 
     print(f"Tüm hatalar kaydedildi: {csv_kaydet(hatalar, secenekler.pdf)}")
+
+    kitap_adi = os.path.basename(secenekler.pdf)
+    html_yolu = f"denetim_raporu_{os.path.splitext(kitap_adi)[0]}.html"
+    with open(html_yolu, "w", encoding="utf-8") as f:
+        f.write(html_rapor(hatalar, ist, kitap_adi, secenekler.sinif))
+    print(f"Yazdırılabilir denetim raporu: {html_yolu}")
 
 
 if __name__ == "__main__":

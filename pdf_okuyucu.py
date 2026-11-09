@@ -7,9 +7,31 @@ from dataclasses import dataclass
 
 import pymupdf
 
-TESSDATA = r"C:\Program Files\Tesseract-OCR\tessdata"   # Tesseract dil dosyaları
+PROJE_KLASORU = os.path.dirname(os.path.abspath(__file__))
 OCR_DILI = "tur+eng"
-ONBELLEK_KLASORU = ".onbellek"
+ONBELLEK_KLASORU = os.path.join(PROJE_KLASORU, ".onbellek")
+
+
+def tessdata_bul():
+    """OCR dil dosyalarının (tur.traineddata) bulunduğu klasörü arar.
+
+    Önce programla birlikte gelen tessdata klasörüne bakılır; böylece bilgisayara
+    Tesseract kurulmamış olsa da OCR çalışır. Bulunamazsa bilinen kurulum yerleri denenir.
+    """
+    adaylar = [
+        os.path.join(PROJE_KLASORU, "tessdata"),
+        os.environ.get("TESSDATA_PREFIX", ""),
+        r"C:\Program Files\Tesseract-OCR\tessdata",
+        r"C:\Program Files (x86)\Tesseract-OCR\tessdata",
+        os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tessdata"),
+    ]
+    for klasor in adaylar:
+        if klasor and os.path.exists(os.path.join(klasor, "tur.traineddata")):
+            return klasor
+    return None
+
+
+TESSDATA = tessdata_bul()   # None ise OCR kullanılamaz; metin içeren sayfalar yine okunur
 
 
 @dataclass
@@ -98,7 +120,7 @@ def paragraflari_cikar(pdf_yolu: str, ocr_kullan: bool = True):
     Metin içermeyen (resim/taranmış) sayfalar ocr_kullan=True ise OCR ile okunur.
     OCR sonuçları .onbellek klasörüne kaydedilir, ikinci çalıştırmada tekrar OCR yapılmaz.
     """
-    ocr_kullan = ocr_kullan and os.path.isdir(TESSDATA)
+    ocr_kullan = ocr_kullan and TESSDATA is not None
     paragraflar = []
     metinsiz_sayfalar = []
 
