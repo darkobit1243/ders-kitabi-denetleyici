@@ -1,3 +1,5 @@
 # Windows toplu is dosyalari her zaman CRLF satir sonlariyla saklanir
 *.bat text eol=crlf
 *.traineddata binary
+*.ico binary
+*.ps1 text eol=crlf

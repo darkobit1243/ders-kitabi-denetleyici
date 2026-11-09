@@ -22,26 +22,40 @@ Millî Eğitim Bakanlığına sunulmak üzere geliştirilmiş öğrenci projesid
 3. **Yaş seviyesine uygunluk** – Ateşman okunabilirlik puanı (ilkokul en az 70, ortaokul 50,
    lise 30) ve sınıf düzeyine göre çok uzun cümleler (ilkokul 12, ortaokul 18, lise 25 kelime).
 
+## Klasör düzeni
+```
+DersKitabiDenetleyici/
+├── KURULUM.bat     ← ilk kullanımda bir kez çift tıklayın
+├── BASLAT.bat      ← programı açar (kurulumdan sonra masaüstü simgesi de kullanılabilir)
+├── README.md       ← bu kılavuz
+├── ornekler/       ← örnek kitap PDF'leri (buraya eklenen PDF'ler arayüzde listelenir)
+└── uygulama/       ← programın kendisi; kullanıcının değiştirmesi gerekmez
+```
+
 ## Kurulum (Windows)
 1. [Python](https://www.python.org/downloads/) **3.11 veya üstünü** kurun. Kurulumda
    **"Add python.exe to PATH"** seçeneğini işaretleyin.
-2. Program klasöründeki **`kurulum.bat`** dosyasına çift tıklayın. Gerekli paketler klasördeki
-   `.venv` sanal ortamına kurulur; bilgisayardaki başka programlar etkilenmez.
+2. **`KURULUM.bat`** dosyasına çift tıklayın. Kurulum:
+   - gerekli paketleri `uygulama\.venv` sanal ortamına kurar (bilgisayardaki diğer programlar etkilenmez),
+   - masaüstüne ve Başlat menüsüne **"Ders Kitabı Denetleyici"** kısayolu ekler.
 
 Taranmış (resim) sayfaları okumak için gereken Türkçe/İngilizce OCR dil dosyaları programla birlikte
-`tessdata` klasöründe gelir; ayrıca Tesseract kurmaya gerek yoktur.
+gelir (`uygulama\tessdata`); ayrıca Tesseract kurmaya gerek yoktur.
+
+**Kaldırma:** `uygulama\kaldir.bat` kısayolları ve kurulan paketleri siler; ardından klasör silinebilir.
 
 ### Çevrimdışı kurulum (internet bağlantısı olmayan bilgisayar)
-1. İnternet bağlantısı olan bir bilgisayarda `paketleri_hazirla.bat` dosyasını çalıştırın. Paketler
-   `paketler` klasörüne indirilir.
-2. Program klasörünü (`paketler` dahil) hedef bilgisayara kopyalayıp `kurulum.bat` dosyasını
-   çalıştırın. Paketler internete bağlanmadan bu klasörden kurulur.
+1. İnternet bağlantısı olan bir bilgisayarda `uygulama\paketleri_hazirla.bat` dosyasını çalıştırın.
+   Paketler `uygulama\paketler` klasörüne indirilir.
+2. Program klasörünün tamamını hedef bilgisayara kopyalayıp `KURULUM.bat` dosyasını çalıştırın.
+   Paketler internete bağlanmadan bu klasörden kurulur.
 
 İki bilgisayarda Python sürümü ve Windows mimarisi (64 bit) aynı olmalıdır.
 
 ## Kullanım
-1. **`baslat.bat`** dosyasına çift tıklayın. Tarayıcıda `http://localhost:8501` adresi açılır.
-   Açılan siyah pencere program çalıştığı sürece kapatılmamalıdır.
+1. Masaüstündeki **Ders Kitabı Denetleyici** simgesine veya **`BASLAT.bat`** dosyasına çift tıklayın.
+   Tarayıcıda `http://localhost:8501` adresi açılır. Açılan siyah pencere program çalıştığı sürece
+   kapatılmamalıdır; programı kapatmak için bu pencereyi kapatın.
 2. Soldan PDF dosyasını yükleyin veya örnek kitaplardan birini seçin, sınıf düzeyini belirleyin
    ve **Denetle** butonuna basın.
 3. Bulgular tabloda listelenir; kritere göre süzülebilir ve aranabilir. Tablodan bir satır
@@ -50,21 +64,21 @@ Taranmış (resim) sayfaları okumak için gereken Türkçe/İngilizce OCR dil d
 4. **Denetim raporu** (yazdırılabilir HTML, tarayıcıda Ctrl+P ile PDF olarak kaydedilebilir) ve
    **bulgu tablosu** (Excel ile açılan CSV) indirilebilir.
 
-### Komut satırı
+### Komut satırı (`uygulama` klasöründe)
 ```
-.venv\Scripts\python main.py kitap.pdf --sinif 9        # bulguları listeler, CSV ve HTML rapor oluşturur
-.venv\Scripts\python main.py kitap.pdf --paragraflar    # yalnızca çıkarılan paragrafları listeler
-.venv\Scripts\python ornek_pdf_olustur.py               # bilinçli hatalar içeren test PDF'i oluşturur
+.venv\Scripts\python main.py ..\ornekler\kitap.pdf --sinif 9   # bulguları listeler, CSV ve HTML rapor oluşturur
+.venv\Scripts\python main.py ..\ornekler\kitap.pdf --paragraflar
+.venv\Scripts\python ornek_pdf_olustur.py                       # bilinçli hatalar içeren test PDF'i oluşturur
 ```
 
-## Testler
+## Testler (`uygulama` klasöründe)
 ```
 .venv\Scripts\python -m unittest discover -s testler -v
 ```
 21 test; Türkçe yardımcı fonksiyonlar, PDF okuma, formül filtresi, üç kriterin her biri,
 zeyrek düzeltmesi, internetsiz çalışma ve test PDF'i üzerinde uçtan uca denetimi kapsar.
 
-## Dosyalar
+## `uygulama` klasöründeki dosyalar
 | Dosya | Görevi |
 |---|---|
 | `arayuz.py` | Yerel web arayüzü (Streamlit) |
@@ -78,7 +92,7 @@ zeyrek düzeltmesi, internetsiz çalışma ve test PDF'i üzerinde uçtan uca de
 | `main.py` | Komut satırı kullanımı |
 | `ek_sozluk.txt` | Sözlükte eksik olan doğru kelimeler (her satıra bir kelime eklenebilir) |
 | `turkce.py`, `hata.py`, `surum.py` | Ortak yardımcılar ve uygulama bilgileri |
-| `kurulum.bat`, `baslat.bat`, `paketleri_hazirla.bat` | Kurulum ve başlatma |
+| `kisayol.ps1`, `kaldir.bat`, `paketleri_hazirla.bat`, `simge.ico` | Kısayol, kaldırma, çevrimdışı paket hazırlama, simge |
 | `tessdata/` | OCR dil dosyaları (Tesseract, Apache 2.0) |
 | `testler/` | Otomatik testler |
 

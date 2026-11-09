@@ -1,6 +1,6 @@
 """Test için içinde bilinçli hatalar bulunan küçük bir ders kitabı PDF'i oluşturur.
 
-Çalıştır:  python ornek_pdf_olustur.py   ->  ornekler/ornek_kitap.pdf
+Çalıştır:  python ornek_pdf_olustur.py   ->  ../ornekler/ornek_kitap.pdf
 """
 
 import os
@@ -8,6 +8,7 @@ import os
 import pymupdf
 
 FONT = r"C:\Windows\Fonts\arial.ttf"   # Türkçe karakterler için
+ORNEK_PDF = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ornekler", "ornek_kitap.pdf")
 
 SAYFALAR = [
     [
@@ -32,7 +33,7 @@ SAYFALAR = [
 ]
 
 
-def olustur(cikti="ornekler/ornek_kitap.pdf"):
+def olustur(cikti=ORNEK_PDF):
     os.makedirs(os.path.dirname(cikti), exist_ok=True)
     belge = pymupdf.open()
     for sayfa_no, paragraflar in enumerate(SAYFALAR, start=1):

@@ -18,7 +18,7 @@ from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI, UZUN_AD
 
 PROJE_KLASORU = os.path.dirname(os.path.abspath(__file__))
 YUKLEME_KLASORU = os.path.join(PROJE_KLASORU, ".yuklenenler")  # OCR önbelleği dosya adını kullanıyor
-ORNEKLER_KLASORU = os.path.join(PROJE_KLASORU, "ornekler")
+ORNEKLER_KLASORU = os.path.join(os.path.dirname(PROJE_KLASORU), "ornekler")   # program klasörünün yanında
 KRITER_RENKLERI = {"Yazım": (0.85, 0.1, 0.1), "Yaş seviyesi": (0.95, 0.55, 0.0), "Tutarlılık": (0.1, 0.35, 0.85)}
 
 st.set_page_config(page_title=UYGULAMA_ADI, page_icon="📘", layout="wide")

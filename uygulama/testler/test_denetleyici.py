@@ -18,7 +18,7 @@ from metin_filtresi import incelenebilir_mi          # noqa: E402
 from pdf_okuyucu import Paragraf, satirlari_birlestir  # noqa: E402
 from turkce import cumlelere_bol, hece_sayisi, kucuk_harf  # noqa: E402
 
-ORNEK_PDF = os.path.join(PROJE, "ornekler", "ornek_kitap.pdf")
+ORNEK_PDF = os.path.join(os.path.dirname(PROJE), "ornekler", "ornek_kitap.pdf")
 
 
 def paragraf(metin, sayfa=1, no=1):
