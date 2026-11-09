@@ -28,6 +28,7 @@ import re
 import sys
 from datetime import datetime
 
+import icerik_guvenligi
 import tutarlilik
 import yas_seviyesi
 import yazim_denetimi
@@ -136,9 +137,37 @@ def olc(pdf_yolu: str, sinif: int) -> dict:
         bulunan += any("Cümle çok uzun" in h.aciklama for h in yas_seviyesi.denetle(yeni, sinif))
     sonuc["Çok uzun cümle"] = (bulunan, denenen)
 
-    # Hata eklenmemiş paragraflarda bulgu sayısı (yazım ve noktalama)
+    # 5-7) İçerik güvenliği: kişisel veri, marka ve çekimli hassas kelime eklenir
+    def icerik_testi(ad, uret):
+        bulunan = 0
+        for p in rnd.sample(havuz, ORNEK_SAYISI):
+            eklenen = uret()
+            yeni = copy.copy(p)
+            kelimeler_ = p.metin.split()
+            i = rnd.randrange(len(kelimeler_) + 1)
+            yeni.metin = " ".join(kelimeler_[:i] + [eklenen] + kelimeler_[i:])
+            bulunan += any(eklenen.startswith(h.alinti) or h.alinti == eklenen.strip(".,")
+                           for h in icerik_guvenligi.denetle(yeni))
+        sonuc[ad] = (bulunan, ORNEK_SAYISI)
+
+    def tc_uret():
+        d = [rnd.randint(1, 9)] + [rnd.randint(0, 9) for _ in range(8)]
+        d.append(((d[0] + d[2] + d[4] + d[6] + d[8]) * 7 - (d[1] + d[3] + d[5] + d[7])) % 10)
+        d.append(sum(d) % 10)
+        return "".join(map(str, d))
+
+    def telefon_uret():
+        return f"05{rnd.randint(30, 59)} {rnd.randint(100, 999)} {rnd.randint(10, 99)} {rnd.randint(10, 99)}"
+
+    icerik_testi("Kişisel veri (T.C. kimlik no / telefon)", lambda: rnd.choice([tc_uret, telefon_uret])())
+    icerik_testi("Marka adı", lambda: rnd.choice(icerik_guvenligi.MARKALAR))
+    icerik_testi("Hassas ifade (çekimli)", lambda: rnd.choice(
+        ["sigarasını", "alkollü", "kumara", "uyuşturucunun", "kavgaya", "öldürdüler", "dövüldü", "aptallar"]))
+
+    # Hata eklenmemiş paragraflarda bulgu sayısı
     temiz = rnd.sample(havuz, min(500, len(havuz)))
     ek_bulgu = sum(len(yazim_denetimi.denetle(p)) for p in temiz)
+    ek_icerik_bulgusu = sum(len(icerik_guvenligi.denetle(p)) for p in temiz)
 
     return {
         "kitap": os.path.basename(pdf_yolu),
@@ -148,6 +177,7 @@ def olc(pdf_yolu: str, sinif: int) -> dict:
                      for tur, (b, d) in sonuc.items()},
         "temiz_paragraf": len(temiz),
         "temiz_paragraf_yazim_bulgusu": ek_bulgu,
+        "temiz_paragraf_icerik_bulgusu": ek_icerik_bulgusu,
     }
 
 
@@ -167,7 +197,8 @@ def main():
     for tur, d in sonuc["yakalama"].items():
         print(f"{tur:38} {d['bulunan']:>8} {d['denenen']:>8} {('%' + str(d['oran'])):>7}")
     print(f"\nHata eklenmemiş {sonuc['temiz_paragraf']} paragrafta yazım/noktalama bulgusu: "
-          f"{sonuc['temiz_paragraf_yazim_bulgusu']}")
+          f"{sonuc['temiz_paragraf_yazim_bulgusu']}, içerik güvenliği bulgusu: "
+          f"{sonuc['temiz_paragraf_icerik_bulgusu']}")
     print(f"Sonuç kaydedildi: {SONUC_DOSYASI}")
 
 

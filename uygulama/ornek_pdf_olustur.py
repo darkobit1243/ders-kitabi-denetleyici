@@ -30,6 +30,12 @@ SAYFALAR = [
         "dengesinin sürdürülmesinde belirleyici bir rol üstlenmektedir.",  # yaş seviyesi
         "Herkez suyu tasarruflu kullanmalıdır.",                   # yazım hatası
     ],
+    [
+        "Su tasarrufu kampanyamıza katılmak için Ayşe Öğretmen'i 0532 123 45 67 numaralı "
+        "telefondan arayabilirsiniz.",                             # kişisel veri (4.1)
+        "Teneffüste susadığınızda Coca-Cola yerine su içmeyi tercih edin.",  # marka (4.2)
+        "Okulun bahçesindeki çeşmenin başında kavga eden öğrenciler öğretmenleri tarafından uyarıldı.",  # 4.5
+    ],
 ]
 
 

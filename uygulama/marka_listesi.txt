@@ -1,0 +1,34 @@
+# Ticari tercih veya yönlendirme oluşturabilecek marka adları (büyük/küçük harf duyarlı).
+# Her satıra bir marka yazın. Başka anlamı olan kelimeler (Amazon nehri, puma hayvanı) bilerek eklenmemiştir.
+Coca-Cola
+Pepsi
+Fanta
+McDonald's
+Burger King
+Starbucks
+Nike
+Adidas
+Apple
+iPhone
+Samsung
+Huawei
+Xiaomi
+PlayStation
+Xbox
+Nintendo
+Netflix
+TikTok
+Instagram
+Twitter
+Facebook
+Snapchat
+Ülker
+Eti
+Nestle
+Migros
+Turkcell
+Vodafone
+Türk Telekom
+Trendyol
+Hepsiburada
+Yemeksepeti

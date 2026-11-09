@@ -22,8 +22,24 @@
       "bulunan": 100,
       "denenen": 100,
       "oran": 100.0
+    },
+    "Kişisel veri (T.C. kimlik no / telefon)": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
+    },
+    "Marka adı": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
+    },
+    "Hassas ifade (çekimli)": {
+      "bulunan": 100,
+      "denenen": 100,
+      "oran": 100.0
     }
   },
   "temiz_paragraf": 500,
-  "temiz_paragraf_yazim_bulgusu": 39
+  "temiz_paragraf_yazim_bulgusu": 35,
+  "temiz_paragraf_icerik_bulgusu": 0
 }

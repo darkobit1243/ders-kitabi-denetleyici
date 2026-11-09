@@ -10,8 +10,9 @@ from html import escape
 from surum import SURUM, UYGULAMA_ADI, UZUN_AD
 
 LACIVERT = "#12315f"
-KRITER_RENKLERI_HEX = {"Yazım": "#c62828", "Tutarlılık": "#1f5fbf", "Yaş Seviyesi": "#e67e00"}
-KRITER_SIMGELERI = {"Yazım": "✎", "Tutarlılık": "⇄", "Yaş Seviyesi": "◔"}
+KRITER_RENKLERI_HEX = {"Yazım": "#c62828", "Tutarlılık": "#1f5fbf", "Yaş Seviyesi": "#e67e00",
+                       "İçerik Güvenliği": "#6a1b9a"}
+KRITER_SIMGELERI = {"Yazım": "✎", "Tutarlılık": "⇄", "Yaş Seviyesi": "◔", "İçerik Güvenliği": "⚑"}
 
 _SIMGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "simge.png")
 with open(_SIMGE, "rb") as f:
@@ -92,7 +93,7 @@ def ust_bant() -> str:
   <div>
     <div class="ust-satir">MİLLÎ EĞİTİM BAKANLIĞINA SUNULMAK ÜZERE HAZIRLANMIŞ ÖĞRENCİ PROJESİ</div>
     <h1>{escape(UZUN_AD)}</h1>
-    <p>Ders kitabı PDF dosyalarında yazım, bilgi tutarlılığı ve yaş seviyesine uygunluk denetimi</p>
+    <p>Ders kitabı PDF dosyalarında yazım, bilgi tutarlılığı, yaş seviyesine uygunluk ve içerik güvenliği denetimi</p>
   </div>
   <div class="rozetler">
     <span class="rozet">Sürüm {SURUM}</span>

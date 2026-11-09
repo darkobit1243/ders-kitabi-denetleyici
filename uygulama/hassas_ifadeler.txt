@@ -1,0 +1,37 @@
+# Kontrol edilmesi önerilen ifadeler. Her satır: "madde kök"
+# Kökler fiillerde mastar biçimindedir (öldürmek). Kelime, kökü bu listede olan her çekimiyle bulunur.
+# Çok anlamlı veya derslerde sık geçen kelimeler (kan, savaş, vurmak, mal) bilerek eklenmemiştir.
+
+# 4.4 Bağımlılık yapıcı maddeler
+4.4 sigara
+4.4 tütün
+4.4 nargile
+4.4 alkol
+4.4 içki
+4.4 bira
+4.4 şarap
+4.4 rakı
+4.4 viski
+4.4 votka
+4.4 kumar
+4.4 kumarhane
+4.4 bahis
+4.4 uyuşturucu
+4.4 eroin
+4.4 kokain
+4.4 esrar
+
+# 4.5 Şiddet ve hakaret
+4.5 öldürmek
+4.5 katletmek
+4.5 dövmek
+4.5 bıçaklamak
+4.5 işkence
+4.5 intihar
+4.5 kavga
+4.5 aptal
+4.5 salak
+4.5 ahmak
+4.5 budala
+4.5 gerizekalı
+4.5 beyinsiz

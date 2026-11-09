@@ -12,19 +12,22 @@ from collections import Counter
 from datetime import datetime
 from html import escape
 
+from kontrol_listesi import KAPSAM_NOTU, KAYNAK, durumlar
 from olcutler import ALT_BASLIK_SIRASI, OLCUT_SIRASI, olcut
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI, UZUN_AD
 from yas_seviyesi import sinif_adi
 
 DEGERLENDIRME_DOSYASI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "degerlendirme_sonucu.json")
 
-KRITER_SIRASI = ["Yazım", "Tutarlılık", "Yaş Seviyesi"]
+KRITER_SIRASI = ["Yazım", "Tutarlılık", "Yaş Seviyesi", "İçerik Güvenliği"]
 KRITER_ACIKLAMALARI = {
     "Yazım": "Sık yapılan yazım hataları, Türkçe sözlükte bulunmayan kelimeler ve noktalama kuralları.",
     "Tutarlılık": "Kitabın farklı yerlerinde farklı sayılarla verilen aynı bilgi ve aynı kelimenin "
                   "farklı yazılışları.",
     "Yaş Seviyesi": "Ateşman, Çetinkaya-Uzun ve Bezirci-Yılmaz okunabilirlik formülleri ve sınıf düzeyine "
                     "göre çok uzun cümleler.",
+    "İçerik Güvenliği": "Kişisel veriler (T.C. kimlik no, telefon, e-posta, IBAN), reklam ve ticari unsurlar, "
+                        "bağımlılık, şiddet ve hakaret içerebilecek ifadeler.",
 }
 
 STIL = """
@@ -93,9 +96,29 @@ def dogruluk_bolumu() -> list:
         f"<table><tr><th>Eklenen hata türü</th><th class='sayi'>Bulunan</th><th class='sayi'>Oran</th></tr>"
         f"{satirlar}</table>",
         f"<p class='not'>Hata eklenmemiş {d['temiz_paragraf']} paragrafta {d['temiz_paragraf_yazim_bulgusu']} "
-        f"yazım/noktalama bulgusu çıkmıştır (bir kısmı kitaptaki gerçek hatalar, bir kısmı yanlış alarmdır). "
-        f"Noktalama, çelişki ve uzun cümle testleri kuralların gerçek kitap metninde çalıştığını gösterir; "
-        f"kitapta doğal olarak bulunabilecek her hata türünün bulunacağı anlamına gelmez.</p>",
+        f"yazım/noktalama bulgusu (bir kısmı kitaptaki gerçek hatalar, bir kısmı yanlış alarm) ve "
+        f"{d.get('temiz_paragraf_icerik_bulgusu', '-')} içerik güvenliği bulgusu çıkmıştır. "
+        f"Yazım dışındaki testler, kuralların gerçek kitap metninde çalıştığını gösterir; kitapta doğal olarak "
+        f"bulunabilecek her hata türünün bulunacağı anlamına gelmez.</p>",
+    ]
+
+
+def kontrol_listesi_bolumu(hatalar) -> list:
+    satirlar = []
+    for madde, baslik, icerik, durum, sayi in durumlar(hatalar):
+        if baslik:
+            satirlar.append(f"<tr><th colspan='4'>{madde}. {escape(baslik)}</th></tr>")
+        else:
+            durum_metni = escape(durum) + (f" – <b>{sayi} bulgu</b>" if sayi is not None else "")
+            satirlar.append(f"<tr><td class='sayi'>{madde}</td><td>{escape(icerik)}</td><td>{durum_metni}</td>"
+                            f"<td>☐ Uygun &nbsp; ☐ Uygun değil</td></tr>")
+    return [
+        "<h2>İnceleme Kontrol Listesi</h2>",
+        f"<p class='not'>Kaynak: {escape(KAYNAK)}. {escape(KAPSAM_NOTU)} Madde metinleri kısaltılmıştır. "
+        "Programın otomatik olarak taradığı maddelerde bulgu sayısı verilmiştir; diğer maddeler bağlam ve uzman "
+        "yorumu gerektirdiğinden inceleyici tarafından değerlendirilmelidir.</p>",
+        "<table><tr><th class='sayi'>Madde</th><th>Kriter</th><th>Program</th><th>İnceleyici</th></tr>"
+        + "".join(satirlar) + "</table>",
     ]
 
 
@@ -127,10 +150,12 @@ def html_rapor(hatalar, istatistik, kitap_adi: str, sinif: int, tarih: datetime 
     parcalar.append(
         "<div class='uyari'><b>Önemli:</b> Bu rapor bir <b>ön inceleme</b> raporudur. Bulgular otomatik olarak "
         "üretilmiş <b>olası</b> hatalardır ve her birinin kitapta bir uzman tarafından kontrol edilmesi gerekir. "
-        "Bulgular, Talim ve Terbiye Kurulu Başkanlığının taslak ders kitabı incelemesinde kullandığı ölçüt "
-        "başlıklarından <i>Bilimsel Yeterlik</i> ve <i>Dil ve Anlatım Yeterliği</i> altında gruplanmıştır; "
-        "rapor resmî incelemenin yerine geçmez ve bu ölçütlerin tamamını kapsamaz. Matematik formülleri ve "
-        "tablolar denetlenmez; taranmış sayfalarda OCR kaynaklı okuma hataları olabilir.</div>")
+        "Bulgular, Talim ve Terbiye Kurulu Başkanlığının ders kitabı incelemesinde kullandığı ölçüt "
+        "başlıklarından <i>Bilimsel Yeterlik</i>, <i>Dil ve Anlatım Yeterliği</i> ve <i>Güvenli, Etik ve Çevreci "
+        "İçerik</i> altında gruplanmıştır; rapor resmî incelemenin yerine geçmez ve bu ölçütlerin tamamını "
+        "kapsamaz. <i>Güvenli, Etik ve Çevreci İçerik</i> başlığındaki bulgular hata değil, bağlamı kontrol "
+        "edilmesi önerilen ifadelerdir. Matematik formülleri ve tablolar denetlenmez; taranmış sayfalarda OCR "
+        "kaynaklı okuma hataları olabilir.</div>")
 
     # Özet: ölçüt -> alt başlık -> bulgu sayısı
     parcalar.append("<h2>Özet</h2><table><tr><th>İnceleme ölçütü</th><th>Alt başlık</th>"
@@ -159,6 +184,7 @@ def html_rapor(hatalar, istatistik, kitap_adi: str, sinif: int, tarih: datetime 
                                 f"<td>{e(h.aciklama)}</td><td>{e(h.alinti)}</td><td>{e(h.oneri)}</td></tr>")
             parcalar.append("</table>")
 
+    parcalar += kontrol_listesi_bolumu(hatalar)
     parcalar += dogruluk_bolumu()
 
     parcalar.append(f"<p class='alti'>{e(UYGULAMA_ADI)} {SURUM} · Geliştiren: {e(GELISTIRICI)} · "

@@ -24,10 +24,26 @@ Millî Eğitim Bakanlığına sunulmak üzere geliştirilmiş öğrenci projesid
    Kitabın geneli için Türkçe'ye özgü üç formül birlikte raporlanır: Ateşman (1997),
    Çetinkaya-Uzun (2010) ve Bezirci-Yılmaz (2010).
 
+4. **İçerik güvenliği** – kişisel veriler (doğrulama algoritmasına uyan T.C. kimlik numarası, telefon,
+   kişisel e-posta, IBAN), reklam ve ticari unsurlar (®/™, resmî kurum dışı web adresleri, marka listesi,
+   satış çağrıları), bağımlılık, şiddet ve hakaret içerebilecek ifadeler. Kelimeler zeyrek ile bulunan
+   kökleriyle karşılaştırılır ("biraz" kelimesi "bira" sanılmaz). Bu bulgular hata değil, bağlamı kontrol
+   edilmesi önerilen ifadelerdir. Listeler `uygulama\hassas_ifadeler.txt` ve `uygulama\marka_listesi.txt`
+   dosyalarından düzenlenebilir.
+
+### İnceleme kontrol listesi
+Sonuç ekranında ve ön inceleme raporunda, TTKB'nin 26.05.2025 tarihli ve 133204310 sayılı Kurul
+Mütalaası ile kabul edilen "Farklı Okul Türlerinde Kullanılan Ders Kitabı ile Diğer Eğitim Araç ve
+Gereçlerinin İncelenmesine Esas Olacak Kriterler" belgesindeki 27 madde listelenir. Program 4.1, 4.2, 4.4
+ve 4.5 maddelerini otomatik tarar ve bulgu sayısını gösterir; diğer maddeler (millî güvenlik, eşitlik,
+millî kültür vb.) bağlam ve uzman yorumu gerektirdiği için inceleyicinin değerlendirmesine bırakılır.
+Not: Bu kriterler milletlerarası özel öğretim kurumları, yabancılar tarafından açılmış özel okullar,
+azınlık okulları ve UDSP uygulayan ortaöğretim kurumlarının kitapları için hazırlanmıştır.
+
 ### İnceleme ölçütleriyle eşleştirme
 Bulgular, Talim ve Terbiye Kurulu Başkanlığının taslak ders kitabı incelemesinde kullandığı ölçüt
-başlıklarından **Bilimsel Yeterlik** (bilgi tutarlılığı) ve **Dil ve Anlatım Yeterliği** (yazım ve
-noktalama, yazım birliği, okunabilirlik) altında gruplanır. Program bir **ön inceleme** aracıdır;
+başlıklarından **Bilimsel Yeterlik** (bilgi tutarlılığı), **Dil ve Anlatım Yeterliği** (yazım ve
+noktalama, yazım birliği, okunabilirlik) ve **Güvenli, Etik ve Çevreci İçerik** (içerik güvenliği) altında gruplanır. Program bir **ön inceleme** aracıdır;
 resmî incelemenin yerine geçmez ve bu ölçütlerin tamamını kapsamaz.
 
 ## Doğruluk ölçümü
@@ -41,9 +57,12 @@ hatalar ekleyip programın bunları bulup bulmadığını ölçer. 9. Sınıf ma
 | Noktalama (virgülden önce boşluk) | %100 |
 | Çelişen sayısal bilgi | %100 |
 | Çok uzun cümle | %100 |
+| Kişisel veri (T.C. kimlik no / telefon) | %100 |
+| Marka adı | %100 |
+| Hassas ifade (çekimli) | %100 |
 
-Hata eklenmemiş 500 paragrafta 39 yazım/noktalama bulgusu çıkmıştır (bir kısmı kitaptaki gerçek
-hatalar, bir kısmı yanlış alarm). Noktalama, çelişki ve uzun cümle testleri kuralların gerçek kitap
+Hata eklenmemiş 500 paragrafta 35 yazım/noktalama bulgusu (bir kısmı kitaptaki gerçek hatalar, bir
+kısmı yanlış alarm) ve 0 içerik güvenliği bulgusu çıkmıştır. Yazım dışındaki testler kuralların gerçek kitap
 metninde çalıştığını gösterir; kitapta doğal olarak bulunabilecek her hatanın bulunacağı anlamına gelmez.
 ```
 .venv\Scripts\python degerlendirme.py ..\ornekler\kitap.pdf --sinif 9
@@ -102,9 +121,10 @@ gelir (`uygulama\tessdata`); ayrıca Tesseract kurmaya gerek yoktur.
 ```
 .venv\Scripts\python -m unittest discover -s testler -v
 ```
-26 test; Türkçe yardımcı fonksiyonlar, PDF okuma, formül filtresi, üç kriterin her biri, üç
+31 test; Türkçe yardımcı fonksiyonlar, PDF okuma, formül filtresi, üç kriterin her biri, üç
 okunabilirlik formülü (elle hesaplanmış değerlerle), inceleme ölçütü eşleştirmesi, zeyrek düzeltmesi,
-internetsiz çalışma, test PDF'i üzerinde uçtan uca denetim ve ön inceleme raporunu kapsar.
+internetsiz çalışma, içerik güvenliği taramaları, kontrol listesi, test PDF'i üzerinde uçtan uca denetim
+ve ön inceleme raporunu kapsar.
 
 ## `uygulama` klasöründeki dosyalar
 | Dosya | Görevi |
@@ -116,6 +136,9 @@ internetsiz çalışma, test PDF'i üzerinde uçtan uca denetim ve ön inceleme 
 | `yazim_denetimi.py` | Kriter 1: yazım ve noktalama |
 | `tutarlilik.py` | Kriter 2: çelişen sayısal bilgiler ve yazım birliği |
 | `yas_seviyesi.py` | Kriter 3: Ateşman okunabilirlik ve cümle uzunluğu |
+| `icerik_guvenligi.py` | Kriter 4: kişisel veri, ticari unsur, hassas ifade taraması |
+| `kontrol_listesi.py` | 27 maddelik inceleme kontrol listesi |
+| `hassas_ifadeler.txt`, `marka_listesi.txt` | Düzenlenebilir tarama listeleri |
 | `okunabilirlik.py` | Ateşman, Çetinkaya-Uzun ve Bezirci-Yılmaz formülleri |
 | `olcutler.py` | Bulguların TTKB inceleme ölçütü başlıklarıyla eşleştirilmesi |
 | `degerlendirme.py`, `degerlendirme_sonucu.json` | Doğruluk ölçümü ve sonucu |

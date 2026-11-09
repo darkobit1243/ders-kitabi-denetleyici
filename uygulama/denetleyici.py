@@ -1,5 +1,6 @@
 """Bütün adımları birleştirir: PDF'i oku -> denetlenecek paragrafları seç -> kriterleri uygula."""
 
+import icerik_guvenligi
 import okunabilirlik
 import tutarlilik
 import yas_seviyesi
@@ -21,6 +22,14 @@ def kitabi_denetle(pdf_yolu: str, sinif: int):
 
     # Tutarlılık kitabın bütününe bakar (iki farklı yerdeki bilgiyi karşılaştırır)
     hatalar += tutarlilik.denetle(incelenecekler)
+
+    # İçerik güvenliği bütün paragraflarda aranır: kişisel veri veya web adresi tablo ve
+    # künye gibi "cümle olmayan" parçalarda da geçebilir
+    for p in paragraflar:
+        bulunanlar = icerik_guvenligi.denetle(p)
+        for h in bulunanlar:
+            h.konum = p.konum
+        hatalar += bulunanlar
     hatalar.sort(key=lambda h: (h.sayfa, h.paragraf_no))
 
     istatistik = {

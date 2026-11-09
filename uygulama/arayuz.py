@@ -17,14 +17,16 @@ from denetleyici import kitabi_denetle
 from pdf_okuyucu import TESSDATA
 from olcutler import olcut_etiketi
 from rapor import DEGERLENDIRME_DOSYASI, KRITER_ACIKLAMALARI, html_rapor
+from kontrol_listesi import KAPSAM_NOTU, KAYNAK, durumlar
 from surum import ACIKLAMA, GELISTIRICI, SURUM, UYGULAMA_ADI
 from yas_seviyesi import sinif_adi
 
 PROJE_KLASORU = os.path.dirname(os.path.abspath(__file__))
 YUKLEME_KLASORU = os.path.join(PROJE_KLASORU, ".yuklenenler")  # OCR önbelleği dosya adını kullanıyor
 ORNEKLER_KLASORU = os.path.join(os.path.dirname(PROJE_KLASORU), "ornekler")   # program klasörünün yanında
-KRITERLER = ["Yazım", "Tutarlılık", "Yaş Seviyesi"]
-KRITER_RENKLERI_PDF = {"Yazım": (0.78, 0.16, 0.16), "Tutarlılık": (0.12, 0.37, 0.75), "Yaş Seviyesi": (0.9, 0.5, 0.0)}
+KRITERLER = ["Yazım", "Tutarlılık", "Yaş Seviyesi", "İçerik Güvenliği"]
+KRITER_RENKLERI_PDF = {"Yazım": (0.78, 0.16, 0.16), "Tutarlılık": (0.12, 0.37, 0.75), "Yaş Seviyesi": (0.9, 0.5, 0.0),
+                       "İçerik Güvenliği": (0.42, 0.11, 0.6)}
 
 st.set_page_config(page_title=UYGULAMA_ADI, page_icon=os.path.join(PROJE_KLASORU, "simge.png"),
                    layout="wide", initial_sidebar_state="expanded")
@@ -83,7 +85,22 @@ def dogruluk_metni() -> str:
     oranlar = ", ".join(f"{tur} %{v['oran']:.0f}" for tur, v in d["yakalama"].items())
     return (f"\n\n**Doğruluk ölçümü.** {d['kitap']} kitabının rastgele paragraflarına türü bilinen hatalar "
             f"eklenmiş ve bulunma oranları ölçülmüştür: {oranlar}. Hata eklenmemiş {d['temiz_paragraf']} "
-            f"paragrafta {d['temiz_paragraf_yazim_bulgusu']} yazım/noktalama bulgusu çıkmıştır.")
+            f"paragrafta {d['temiz_paragraf_yazim_bulgusu']} yazım/noktalama ve "
+            f"{d.get('temiz_paragraf_icerik_bulgusu', '-')} içerik güvenliği bulgusu çıkmıştır.")
+
+
+def kontrol_listesi_tablosu(hatalar) -> pd.DataFrame:
+    satirlar = []
+    for madde, baslik, icerik, durum, sayi in durumlar(hatalar):
+        if baslik:
+            continue
+        satirlar.append({
+            "Madde": madde,
+            "Kriter": icerik,
+            "Program": durum + (f" – {sayi} bulgu" if sayi is not None else ""),
+            "Uygun": False,
+        })
+    return pd.DataFrame(satirlar)
 
 
 def alt_bilgi():
@@ -103,7 +120,7 @@ def karsilama():
         sutun.markdown(stil.adim_karti(no, baslik, metin), unsafe_allow_html=True)
 
     st.markdown('<div class="bolum-baslik">Denetlenen kriterler</div>', unsafe_allow_html=True)
-    for sutun, kriter in zip(st.columns(3), KRITERLER):
+    for sutun, kriter in zip(st.columns(len(KRITERLER)), KRITERLER):
         sutun.markdown(stil.kriter_karti(kriter, KRITER_ACIKLAMALARI[kriter]), unsafe_allow_html=True)
 
     st.write("")
@@ -119,10 +136,16 @@ def karsilama():
             "çok uzun cümleler ayrıca raporlanır (İlkokul 12, Ortaokul 18, Lise 25 kelime). Kitabın geneli için "
             "Türkçe'ye özgü üç formülün sonucu birlikte verilir: Ateşman (1997), Çetinkaya-Uzun (2010) ve "
             "Bezirci-Yılmaz (2010).\n\n"
-            "**İnceleme ölçütleri.** Bulgular, Talim ve Terbiye Kurulu Başkanlığının taslak ders kitabı "
-            "incelemesinde kullandığı ölçüt başlıklarından *Bilimsel Yeterlik* (bilgi tutarlılığı) ve *Dil ve "
-            "Anlatım Yeterliği* (yazım, yazım birliği, okunabilirlik) altında gruplanır. Program bir ön inceleme "
-            "aracıdır; resmî incelemenin yerine geçmez."
+            "**İçerik Güvenliği.** Kişisel veriler (doğrulama algoritmasına uyan T.C. kimlik numarası, telefon, "
+            "kişisel e-posta, IBAN), reklam ve ticari unsurlar (®/™, resmî kurum dışı web adresleri, marka listesi, "
+            "satış çağrıları), bağımlılık, şiddet ve hakaret içerebilecek ifadeler taranır. Kelimeler kökleriyle "
+            "karşılaştırılır (\"biraz\" kelimesi \"bira\" sanılmaz). Bu bulgular hata değil, bağlamı kontrol "
+            "edilmesi önerilen ifadelerdir. Kelime ve marka listeleri `hassas_ifadeler.txt` ve "
+            "`marka_listesi.txt` dosyalarından düzenlenebilir.\n\n"
+            "**İnceleme ölçütleri.** Bulgular, Talim ve Terbiye Kurulu Başkanlığının ders kitabı incelemesinde "
+            "kullandığı ölçüt başlıklarından *Bilimsel Yeterlik*, *Dil ve Anlatım Yeterliği* ve *Güvenli, Etik ve "
+            "Çevreci İçerik* altında gruplanır. Sonuç ekranında 27 maddelik inceleme kontrol listesi yer alır. "
+            "Program bir ön inceleme aracıdır; resmî incelemenin yerine geçmez."
             + dogruluk_metni() +
             "\n\n**Sınırlamalar.** Bulgular *olası* hatalardır ve uzman kontrolü gerektirir. Matematik formülleri "
             "ve tablolar PDF'ten metin olarak okunamadığı için denetlenmez. Taranmış sayfalarda OCR kaynaklı "
@@ -191,11 +214,12 @@ sayilar = {k: sum(h.kriter == k for h in hatalar) for k in KRITERLER}
 # ---------------- Özet ----------------
 tarih = st.session_state.get("tarih")
 st.markdown(f'<div class="kitap-bilgi">📘 <b>{pdf_adi}</b> &nbsp;·&nbsp; {sinif_adi(sinif, kademe_ile=True)} &nbsp;·&nbsp; '
-            f'{ist["sayfa_sayisi"]} sayfa &nbsp;·&nbsp; Denetim: {tarih:%d.%m.%Y %H:%M}</div>',
+            f'{ist["sayfa_sayisi"]} sayfa &nbsp;·&nbsp; formül/tablo olarak atlanan '
+            f'{format(ist["atlanan_paragraf"], ",").replace(",", ".")} parça &nbsp;·&nbsp; '
+            f'Denetim: {tarih:%d.%m.%Y %H:%M}</div>',
             unsafe_allow_html=True)
 
-kartlar = [(ist["incelenen_paragraf"], "İncelenen paragraf", stil.LACIVERT),
-           (ist["atlanan_paragraf"], "Atlanan formül/tablo", "#8a94a6")]
+kartlar = [(ist["incelenen_paragraf"], "İncelenen paragraf", stil.LACIVERT)]
 kartlar += [(sayilar[k], f"{k} bulgusu", stil.KRITER_RENKLERI_HEX[k]) for k in KRITERLER]
 kartlar.append((len(hatalar), "Toplam olası hata", "#2e7d32"))
 for sutun, (deger, etiket, renk) in zip(st.columns(len(kartlar)), kartlar):
@@ -230,6 +254,17 @@ i2.download_button("📊 Excel tablosu",
                    tabloya_cevir(hatalar).to_csv(index=False, sep=";").encode("utf-8-sig"),
                    file_name=f"bulgular_{ad}.csv", mime="text/csv", width="stretch", disabled=not hatalar,
                    help="Bütün bulgular; Excel ile açılabilen CSV dosyası.")
+
+with st.expander("📋 İnceleme Kontrol Listesi (27 madde)"):
+    st.caption(f"Kaynak: {KAYNAK}. {KAPSAM_NOTU} Madde metinleri kısaltılmıştır. Otomatik taranan maddelerde "
+               "bulgu sayısı verilmiştir; diğerleri uzman değerlendirmesi gerektirir. \"Uygun\" sütunu "
+               "inceleyicinin işaretlemesi içindir ve yalnızca bu oturumda tutulur; yazdırılabilir raporda "
+               "boş kutular yer alır.")
+    st.data_editor(kontrol_listesi_tablosu(hatalar), hide_index=True, width="stretch", disabled=["Madde", "Kriter", "Program"],
+                   column_config={"Madde": st.column_config.TextColumn(width="small"),
+                                  "Kriter": st.column_config.TextColumn(width="large"),
+                                  "Program": st.column_config.TextColumn(width="large"),
+                                  "Uygun": st.column_config.CheckboxColumn(width="small")})
 
 if not hatalar:
     st.success("Bu kitapta olası hata bulunamadı.")

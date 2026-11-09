@@ -10,6 +10,8 @@ import unittest
 PROJE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJE)
 
+import icerik_guvenligi                              # noqa: E402
+import kontrol_listesi                               # noqa: E402
 import okunabilirlik                                 # noqa: E402
 import tutarlilik                                    # noqa: E402
 from hata import Hata                                # noqa: E402
@@ -152,6 +154,35 @@ class IncelemeOlcutleri(unittest.TestCase):
                          ("Dil ve Anlatım Yeterliği", "Seviyeye uygunluk ve okunabilirlik"))
 
 
+class IcerikGuvenligi(unittest.TestCase):
+    def test_tc_kimlik_dogrulama(self):
+        self.assertTrue(icerik_guvenligi.tc_kimlik_gecerli_mi("10000000146"))
+        self.assertFalse(icerik_guvenligi.tc_kimlik_gecerli_mi("12345678901"))
+        self.assertFalse(icerik_guvenligi.tc_kimlik_gecerli_mi("01234567890"))
+
+    def test_kisisel_veri(self):
+        bulunan = [a for a, _ in icerik_guvenligi.kisisel_veriler(
+            "Ali 0532 123 45 67 ile arar, ali@gmail.com yazar; destek@meb.gov.tr resmidir.")]
+        self.assertEqual(bulunan, ["0532 123 45 67", "ali@gmail.com"])
+
+    def test_resmi_web_adresi_bulgu_degil(self):
+        bulunan = [a for a, _ in icerik_guvenligi.ticari_unsurlar("www.eba.gov.tr ve www.ornekmagaza.com")]
+        self.assertEqual(bulunan, ["www.ornekmagaza.com"])
+
+    def test_hassas_ifade_kok_eslestirme(self):
+        bul = lambda k: [m for m, _ in icerik_guvenligi.hassas_ifadeler(k)]
+        self.assertEqual(bul("sigarasını"), ["4.4"])
+        self.assertEqual(bul("kavgaya"), ["4.5"])
+        for zararsiz in ["biraz", "esrarengiz", "döviz", "içkin"]:
+            self.assertEqual(bul(zararsiz), [], zararsiz)
+
+    def test_kontrol_listesi_27_madde(self):
+        maddeler = [d for d in kontrol_listesi.durumlar([]) if d[1] is None]
+        self.assertEqual(len(maddeler), 27)
+        otomatik = [d[0] for d in maddeler if d[3].startswith("Otomatik")]
+        self.assertEqual(otomatik, ["4.1", "4.2", "4.4", "4.5"])
+
+
 @unittest.skipUnless(os.path.exists(ORNEK_PDF), "ornek_kitap.pdf bulunamadı")
 class UctanUca(unittest.TestCase):
     """Bilinçli hatalar içeren test PDF'inde üç kriterin de hatasını bulmalı."""
@@ -159,7 +190,7 @@ class UctanUca(unittest.TestCase):
     def test_ornek_kitap(self):
         hatalar, ist = kitabi_denetle(ORNEK_PDF, sinif=4)
         kriterler = {h.kriter for h in hatalar}
-        self.assertEqual(kriterler, {"Yazım", "Tutarlılık", "Yaş Seviyesi"})
+        self.assertEqual(kriterler, {"Yazım", "Tutarlılık", "Yaş Seviyesi", "İçerik Güvenliği"})
         self.assertIn("Herkez", [h.alinti for h in hatalar])
         for h in hatalar:
             self.assertIsNotNone(h.konum, "her bulgunun sayfadaki konumu olmalı")
@@ -168,7 +199,8 @@ class UctanUca(unittest.TestCase):
         hatalar, ist = kitabi_denetle(ORNEK_PDF, sinif=4)
         metin = html_rapor(hatalar, ist, "ornek_kitap.pdf", 4)
         for bolum in ["Bilimsel Yeterlik", "Dil ve Anlatım Yeterliği", "Çetinkaya-Uzun", "Bezirci-Yılmaz",
-                      "4. Sınıf (İlkokul)", "ön inceleme"]:
+                      "4. Sınıf (İlkokul)", "ön inceleme", "İnceleme Kontrol Listesi",
+                      "Güvenli, Etik ve Çevreci İçerik", "4.1 Kişisel verilerin korunması"]:
             self.assertIn(bolum, metin)
         self.assertNotIn("http", metin, "rapor dış bağlantı içermemeli")
 
